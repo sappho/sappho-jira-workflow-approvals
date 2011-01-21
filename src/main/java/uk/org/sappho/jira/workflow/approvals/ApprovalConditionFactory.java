@@ -8,11 +8,12 @@ import com.opensymphony.workflow.loader.AbstractDescriptor;
 
 public class ApprovalConditionFactory implements WorkflowPluginConditionFactory {
 
-    public Map getDescriptorParams(Map arg0) {
-        return new HashMap();
+    @SuppressWarnings("unchecked")
+    public Map<String, ?> getDescriptorParams(Map arg0) {
+        return new HashMap<String, Object>();
     }
 
-    public Map getVelocityParams(String arg0, AbstractDescriptor arg1) {
-        return new HashMap();
+    public Map<String, ?> getVelocityParams(String arg0, AbstractDescriptor arg1) {
+        return new HashMap<String, Object>();
     }
 }

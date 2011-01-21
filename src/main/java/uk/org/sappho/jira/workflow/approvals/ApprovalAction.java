@@ -25,6 +25,7 @@ abstract public class ApprovalAction extends Approval implements FunctionProvide
         commentManager = componentManager.getCommentManager();
     }
 
+    @SuppressWarnings("unchecked")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         if (isApprovalIssue(transientVars)) {

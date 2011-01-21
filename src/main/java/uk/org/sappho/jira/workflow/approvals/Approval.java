@@ -12,9 +12,9 @@ abstract public class Approval {
     protected MutableIssue issue;
     protected Matcher typeMatcher;
 
-    protected boolean isApprovalIssue(Map transientVars) {
+    protected boolean isApprovalIssue(Map<String, MutableIssue> transientVars) {
 
-        issue = (MutableIssue) transientVars.get("issue");
+        issue = transientVars.get("issue");
         String issueType = issue.getIssueTypeObject().getName();
         typeMatcher = typeRegex.matcher(issueType);
         return typeMatcher.matches();

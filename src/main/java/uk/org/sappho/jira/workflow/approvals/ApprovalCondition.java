@@ -12,6 +12,7 @@ public class ApprovalCondition extends Approval implements Condition {
     private final static Pattern statusRegex = Pattern
             .compile("^Awaiting (Technical Approval|Management Approval|Action)$");
 
+    @SuppressWarnings("unchecked")
     public boolean passesCondition(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         boolean passes = false;

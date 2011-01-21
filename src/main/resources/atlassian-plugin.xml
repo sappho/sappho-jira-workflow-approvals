@@ -7,24 +7,24 @@
         <vendor name="Sappho OSS" url="http://www.sappho.org.uk"/>
     </plugin-info>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.ApproveAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+    <workflow-function key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
         <description>Sappho Approve Action</description>
         <function-class>uk.org.sappho.jira.workflow.approvals.ApproveAction</function-class>
     </workflow-function>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.DeclineAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+    <workflow-function key="${project.groupId}.${project.artifactId}.DeclineAction" name="Decline Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
         <description>Sappho Decline Action</description>
         <function-class>uk.org.sappho.jira.workflow.approvals.DeclineAction</function-class>
     </workflow-function>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+    <workflow-function key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Reconsider Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
         <description>Sappho Reconsider Action</description>
         <function-class>uk.org.sappho.jira.workflow.approvals.ReconsiderAction</function-class>
     </workflow-function>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+    <workflow-condition key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Approval Condition" class="uk.org.sappho.jira.workflow.approvals.ApprovalConditionFactory">
         <description>Sappho Approval Condition</description>
-        <function-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition</function-class>
-    </workflow-function>
+        <condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition</condition-class>
+    </workflow-condition>
 
 </atlassian-plugin>

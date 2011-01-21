@@ -1,0 +1,15 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}">
+
+    <plugin-info>
+        <description>${project.name}</description>
+        <version>${project.version}</version>
+        <application-version min="3.5" max="4.0"/>
+        <vendor name="Sappho OSS" url="http://www.sappho.org.uk"/>
+    </plugin-info>
+
+    <workflow-function key="${project.groupId}.${project.artifactId}.Approvals" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Approvals</description>
+        <function-class>com.catlin.phasechangeplugin.ChangePhase</function-class>
+    </workflow-function>
+
+</atlassian-plugin>

@@ -1,12 +1,12 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-public class Decline extends ApprovalAction {
+public class ApproveAction extends ApprovalAction {
 
     protected String getAction() {
-        return "declined";
+        return "granted";
     }
 
     protected String getFlag() {
-        return "declined";
+        return "approved";
     }
 }

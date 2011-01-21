@@ -7,9 +7,24 @@
         <vendor name="Sappho OSS" url="http://www.sappho.org.uk"/>
     </plugin-info>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.Approvals" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-        <description>Sappho Approvals</description>
-        <function-class>com.catlin.phasechangeplugin.ChangePhase</function-class>
+    <workflow-function key="${project.groupId}.${project.artifactId}.ApproveAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Approve Action</description>
+        <function-class>uk.org.sappho.jira.workflow.approvals.ApproveAction</function-class>
+    </workflow-function>
+
+    <workflow-function key="${project.groupId}.${project.artifactId}.DeclineAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Decline Action</description>
+        <function-class>uk.org.sappho.jira.workflow.approvals.DeclineAction</function-class>
+    </workflow-function>
+
+    <workflow-function key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Reconsider Action</description>
+        <function-class>uk.org.sappho.jira.workflow.approvals.ReconsiderAction</function-class>
+    </workflow-function>
+
+    <workflow-function key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Sappho Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Approval Condition</description>
+        <function-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition</function-class>
     </workflow-function>
 
 </atlassian-plugin>

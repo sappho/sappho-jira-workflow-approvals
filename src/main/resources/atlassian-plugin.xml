@@ -27,4 +27,9 @@
         <condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition</condition-class>
     </workflow-condition>
 
+    <workflow-function key="${project.groupId}.${project.artifactId}.SeekApprovalAction" name="Seek Approval Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+        <description>Sappho Seek Approval Action</description>
+        <function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction</function-class>
+    </workflow-function>
+
 </atlassian-plugin>

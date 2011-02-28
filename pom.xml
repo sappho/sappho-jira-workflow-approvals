@@ -36,6 +36,16 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>uk.org.sappho.confluence4j.soap</groupId>
+			<artifactId>confluence4j-soap</artifactId>
+			<version>3.4.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -44,7 +54,36 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
+			<resource>
+				<directory>${project.build.directory}/lib</directory>
+				<targetPath>META-INF/lib</targetPath>
+			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>uk.org.sappho.confluence4j.soap</groupId>
+									<artifactId>confluence4j-soap</artifactId>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 
 </project>

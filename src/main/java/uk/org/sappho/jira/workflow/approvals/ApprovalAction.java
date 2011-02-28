@@ -28,7 +28,7 @@ abstract public class ApprovalAction extends Approval implements FunctionProvide
     @SuppressWarnings("unchecked")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
-        if (isApprovalIssue(transientVars)) {
+        if (isLiveApprovalIssue(transientVars)) {
             String grade = typeMatcher.group(1);
             String kind = typeMatcher.group(2);
             String issueKey = issue.getKey();
@@ -36,8 +36,9 @@ abstract public class ApprovalAction extends Approval implements FunctionProvide
             User user = componentManager.getJiraAuthenticationContext().getUser();
             String userName = user.getName();
             String userFullName = user.getFullName();
-            commentManager.create(parentIssue, userFullName + " " + getAction() + " " + grade.toLowerCase() + " "
-                    + kind.toLowerCase() + " approval. See " + issueKey + ".", null, false);
+            commentManager.create(parentIssue, userName, userFullName + " " + getAction() + " " + grade.toLowerCase()
+                    + " "
+                    + kind.toLowerCase() + " approval. See " + issueKey + ".", true);
             String type = grade + " : " + kind;
             Object flag = customFieldManager.getCustomFieldObjectByName("Approval : " + type);
             Object approver = customFieldManager.getCustomFieldObjectByName("Approver : " + type);

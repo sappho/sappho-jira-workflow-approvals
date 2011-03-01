@@ -14,8 +14,16 @@ import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.User;
 import com.opensymphony.workflow.WorkflowException;
 
+import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
+
 public class SeekApprovalAction extends AbstractJiraFunctionProvider {
 
+    private String wikiURL;
+    private String wikiUsername;
+    private String wikiPassword;
+    private String wikiSpace;
+    private String wikiPagePrefix;
+    private String wikiPageSuffix;
     private static final Logger log = Logger.getLogger(SeekApprovalAction.class);
     private static final Pattern tableRegex = Pattern.compile("^ *| +([:\\-A-Za-z][ :\\-A-Za-z]) +|(.+|)$");
 
@@ -24,6 +32,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
 
         try {
             MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
+            String project = issueToBeApproved.getProjectObject().getKey();
             log.warn(issueToBeApproved.getKey() + " needs approval");
             Collection<GenericValue> components = issueToBeApproved.getComponents();
             for (GenericValue component : components) {
@@ -33,13 +42,10 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
             ComponentManager componentManager = ComponentManager.getInstance();
             User user = componentManager.getJiraAuthenticationContext().getUser();
 
-            /**
-            ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService("http://wiki.catlin.com",
-                    "build_dev", "Build_D3v");
-            String configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(), "SYSCON",
-                    "CRM Approvals").getContent();
-            log.warn("Config page:\n" + configPage);
-            **/
+            ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService(wikiURL, wikiUsername,
+                    wikiPassword);
+            String configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(),
+                    wikiSpace, project + wikiPageSuffix).getContent();
 
             MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
             approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());

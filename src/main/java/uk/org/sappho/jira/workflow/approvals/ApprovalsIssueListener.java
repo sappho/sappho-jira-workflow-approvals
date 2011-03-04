@@ -9,27 +9,70 @@ import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.issue.IssueEventListener;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.opensymphony.user.User;
 
 public class ApprovalsIssueListener implements IssueEventListener {
 
     private final Map<String, String> issueTypes = new HashMap<String, String>();
     private final Map<String, String> projects = new HashMap<String, String>();
+    private ApprovalsConfiguration approvalsConfiguration;
+    private CustomField serviceTypeField;
+    private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(ApprovalsIssueListener.class);
 
     public void workflowEvent(IssueEvent event) {
 
         // check if this is an issue create - event type id will be 1
-        if (event.getEventTypeId() == 1) {
+        if (serviceTypeField != null && event.getEventTypeId() == 1) {
             MutableIssue issue = (MutableIssue) event.getIssue();
             String issueType = issue.getIssueTypeObject().getName();
             String project = issue.getProjectObject().getKey();
             // check that the new issue is in a relevant project
-            if (issueTypes.get(issueType) != null && projects.get(project) != null) {
-                User user = ComponentManager.getInstance().getJiraAuthenticationContext().getUser();
-                issue.setAssignee(user);
-                issue.store();
-                log.warn("Assigned issue " + issue.getKey() + " to logged in reporter " + user.getFullName());
+            if (projects.get(project) != null) {
+                if (ApprovalsConfiguration.approvalIssueTypeRegex.matcher(issueType).matches()) {
+                    try {
+                        String approver = approvalsConfiguration.getApprover(project, issueType);
+                        User user = componentManager.getUserUtil().getUser(approver);
+                        issue.setAssignee(user);
+                        issue.store();
+                        log.warn("Assigned approval issue " + issue.getKey() + " to " + user.getFullName());
+                    } catch (Throwable t) {
+                    }
+                } else if (issueTypes.get(issueType) != null) {
+                    User user = componentManager.getJiraAuthenticationContext().getUser();
+                    issue.setAssignee(user);
+                    issue.store();
+                    log.warn("Assigned issue " + issue.getKey() + " to logged in reporter " + user.getFullName());
+                    /*
+                    Object serviceAndTypeObj = issue.getCustomFieldValue(serviceTypeField);
+                    CustomFieldParams serviceAndType = null;
+                    if (serviceAndTypeObj != null && serviceAndTypeObj instanceof CustomFieldParams)
+                        serviceAndType = (CustomFieldParams) serviceAndTypeObj;
+                    if (serviceAndType == null)
+                        log.warn("Invalid Service / Type field value!");
+                    else {
+                        Object serviceObj = serviceAndType.getFirstValueForNullKey();
+                        Object typeObj = serviceAndType.getFirstValueForKey("1");
+                        String service = null;
+                        String type = null;
+                        if (serviceObj != null && serviceObj instanceof Option)
+                            service = ((Option) serviceObj).getValue();
+                        if (typeObj != null && typeObj instanceof Option)
+                            type = ((Option) typeObj).getValue();
+                        if (service == null || type == null)
+                            log.warn("Invalid Service / Type field value!");
+                        else {
+                            log.warn("service: " + service);
+                            log.warn("type: " + type);
+                            try {
+                                approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
+                            } catch (Throwable t) {
+                            }
+                        }
+                    }
+                    */
+                }
             }
         }
     }
@@ -38,33 +81,24 @@ public class ApprovalsIssueListener implements IssueEventListener {
     public void init(Map params) {
 
         log.warn("Initialising Approvals Issue Listener parameters");
-        for (String project : getParam(params, "projects").split(",")) {
-            project = project.trim();
-            log.warn("Project: " + project);
-            projects.put(project, project);
+        getParam(params, "issue.types", "Issue type", issueTypes);
+        getParam(params, "projects", "Project", projects);
+        serviceTypeField = componentManager.getCustomFieldManager().getCustomFieldObjectByName("Service / Type");
+        if (serviceTypeField == null)
+            log.warn("Service / Type custom field is not configured!");
+        approvalsConfiguration = new ApprovalsConfiguration(getParam(params, "wiki.url"), getParam(params,
+                "wiki.username"), getParam(params, "wiki.password"), getParam(params, "wiki.space"), getParam(params,
+                "wiki.page.prefix"), getParam(params, "wiki.page.suffix"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void getParam(Map params, String paramName, String description, Map<String, String> list) {
+
+        for (String item : getParam(params, paramName).split(",")) {
+            item = item.trim();
+            log.warn(description + ": " + item);
+            list.put(item, item);
         }
-        for (String issueType : getParam(params, "issue.types").split(",")) {
-            issueType = issueType.trim();
-            log.warn("Issue type: " + issueType);
-            issueTypes.put(issueType, issueType);
-        }
-        /*
-        wikiURL = getParam(params, "wiki.url");
-        wikiUsername = getParam(params, "wiki.username");
-        wikiPassword = getParam(params, "wiki.password");
-        wikiSpace = getParam(params, "wiki.space");
-        wikiPagePrefix = getParam(params, "wiki.page.prefix");
-        wikiPageSuffix = getParam(params, "wiki.page.suffix");
-        log.warn("Wiki URL: " + wikiURL);
-        log.warn("Wiki username: " + wikiUsername);
-        log.warn("Wiki password: " + wikiPassword);
-        log.warn("Wiki space: " + wikiSpace);
-        log.warn("Wiki page suffix: " + wikiPageSuffix);
-        if (wikiPagePrefix.length() > 0)
-            wikiPagePrefix += " ";
-        if (wikiPageSuffix.length() > 0)
-            wikiPageSuffix = " " + wikiPageSuffix;
-        */
     }
 
     @SuppressWarnings("unchecked")
@@ -81,7 +115,8 @@ public class ApprovalsIssueListener implements IssueEventListener {
 
     public String[] getAcceptedParams() {
 
-        return new String[] { "issue.types", "projects" };
+        return new String[] { "issue.types", "projects", "wiki.url", "wiki.username", "wiki.password", "wiki.space",
+                "wiki.page.prefix", "wiki.page.suffix" };
     }
 
     public String getDescription() {

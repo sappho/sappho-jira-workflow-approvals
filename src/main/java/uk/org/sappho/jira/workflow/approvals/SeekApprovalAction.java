@@ -2,7 +2,6 @@ package uk.org.sappho.jira.workflow.approvals;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
@@ -25,7 +24,6 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
     private String wikiPagePrefix;
     private String wikiPageSuffix;
     private static final Logger log = Logger.getLogger(SeekApprovalAction.class);
-    private static final Pattern tableRegex = Pattern.compile("^ *| +([:\\-A-Za-z][ :\\-A-Za-z]) +|(.+|)$");
 
     @SuppressWarnings("unchecked")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {

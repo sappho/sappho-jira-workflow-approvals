@@ -9,7 +9,6 @@ import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.event.issue.IssueEvent;
 import com.atlassian.jira.event.issue.IssueEventListener;
 import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.fields.CustomField;
 import com.opensymphony.user.User;
 
 public class ApprovalsIssueListener implements IssueEventListener {
@@ -17,43 +16,47 @@ public class ApprovalsIssueListener implements IssueEventListener {
     private final Map<String, String> issueTypes = new HashMap<String, String>();
     private final Map<String, String> projects = new HashMap<String, String>();
     private ApprovalsConfiguration approvalsConfiguration;
-    private CustomField serviceTypeField;
     private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(ApprovalsIssueListener.class);
 
     public void workflowEvent(IssueEvent event) {
 
         // check if this is an issue create - event type id will be 1
-        if (serviceTypeField != null && event.getEventTypeId() == 1) {
-            MutableIssue issue = (MutableIssue) event.getIssue();
-            String issueType = issue.getIssueTypeObject().getName();
-            String project = issue.getProjectObject().getKey();
-            // check that the new issue is in a relevant project
-            if (projects.get(project) != null) {
-                // is it an approval issue?
-                if (approvalsConfiguration.isApprovalIssueType(issueType)) {
-                    try {
-                        // approvals sub-tasks are assigned to the approval type team lead by default
-                        String approver = approvalsConfiguration.getApprover(project, issueType);
-                        if (approver != null) {
-                            User user = componentManager.getUserUtil().getUser(approver);
-                            if (user != null) {
-                                issue.setAssignee(user);
-                                // store the change - will not persist otherwise
-                                issue.store();
-                                log.warn("Assigned approval issue " + issue.getKey() + " to " + user.getFullName());
-                            }
+        if (event.getEventTypeId() == 1)
+            issueCreated(event);
+    }
+
+    public void issueCreated(IssueEvent event) {
+
+        MutableIssue issue = (MutableIssue) event.getIssue();
+        String issueType = issue.getIssueTypeObject().getName();
+        String project = issue.getProjectObject().getKey();
+        // check that the new issue is in a relevant project
+        if (projects.get(project) != null) {
+            // is it an approval issue?
+            if (approvalsConfiguration.isApprovalIssueType(issueType)) {
+                try {
+                    // approvals sub-tasks are assigned to the approval type team lead by default
+                    String approver = approvalsConfiguration.getApprover(project, issueType);
+                    if (approver != null) {
+                        User user = componentManager.getUserUtil().getUser(approver);
+                        if (user != null) {
+                            issue.setAssignee(user);
+                            // store the change - will not persist otherwise
+                            issue.store();
+                            log.warn("Assigned approval issue " + issue.getKey() + " to " + user.getFullName());
                         }
-                    } catch (Throwable t) {
                     }
-                } else if (issueTypes.get(issueType) != null) {
-                    // new non-approvals issues will always default to being assigned to the person raising the issue
-                    User user = componentManager.getJiraAuthenticationContext().getUser();
-                    issue.setAssignee(user);
-                    // store the change - will not persist otherwise
-                    issue.store();
-                    log.warn("Assigned issue " + issue.getKey() + " to logged in reporter " + user.getFullName());
+                } catch (Throwable t) {
                 }
+                // otherwise it has to be an issue type configured for handling
+            } else if (issueTypes.get(issueType) != null) {
+                // new non-approvals issues will always default to being assigned to the person raising the issue
+                User user = componentManager.getJiraAuthenticationContext().getUser();
+                issue.setAssignee(user);
+                // store the change - will not persist otherwise
+                issue.store();
+                log.warn("Assigned issue " + issue.getKey() + " to logged in reporter " + user.getFullName());
             }
         }
     }
@@ -64,9 +67,6 @@ public class ApprovalsIssueListener implements IssueEventListener {
         log.warn("Initialising Approvals Issue Listener parameters");
         getParam(params, "issue.types", "Issue type", issueTypes);
         getParam(params, "projects", "Project", projects);
-        serviceTypeField = componentManager.getCustomFieldManager().getCustomFieldObjectByName("Service / Type");
-        if (serviceTypeField == null)
-            log.warn("Service / Type custom field is not configured!");
         approvalsConfiguration = new ApprovalsConfiguration(getParam(params, "wiki.url"), getParam(params,
                 "wiki.username"), getParam(params, "wiki.password"), getParam(params, "wiki.space"), getParam(params,
                 "wiki.page.prefix"), getParam(params, "wiki.page.suffix"),
@@ -126,9 +126,6 @@ public class ApprovalsIssueListener implements IssueEventListener {
     }
 
     public void issueCommented(IssueEvent event) {
-    }
-
-    public void issueCreated(IssueEvent event) {
     }
 
     public void issueDeleted(IssueEvent event) {

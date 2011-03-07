@@ -23,13 +23,13 @@ public class ApprovalsConfiguration {
     private final String wikiSpace;
     private final String wikiPagePrefix;
     private final String wikiPageSuffix;
+    private final Map<String, String> lastConfigPages = new HashMap<String, String>();
+    private final Pattern approvalIssueTypeRegex;
     protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
-    protected static final Pattern approvalIssueTypeRegex = Pattern
-            .compile("^Approval : (Technical|Management) : ([a-zA-Z][a-zA-Z ]*[a-zA-Z])$");
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
 
     public ApprovalsConfiguration(String wikiURL, String wikiUsername, String wikiPassword, String wikiSpace,
-            String wikiPagePrefix, String wikiPageSuffix) {
+            String wikiPagePrefix, String wikiPageSuffix, String approvalIssueTypeRegex) {
 
         if (wikiPagePrefix.length() > 0)
             wikiPagePrefix += " ";
@@ -41,6 +41,7 @@ public class ApprovalsConfiguration {
         this.wikiSpace = wikiSpace;
         this.wikiPagePrefix = wikiPagePrefix;
         this.wikiPageSuffix = wikiPageSuffix;
+        this.approvalIssueTypeRegex = Pattern.compile(approvalIssueTypeRegex);
     }
 
     public class Configuration {
@@ -48,47 +49,60 @@ public class ApprovalsConfiguration {
         private final Map<String, List<String>> requiredApprovals = new HashMap<String, List<String>>();
         private final Map<String, String> approvers = new HashMap<String, String>();
 
-        public Configuration(String project) throws MalformedURLException, RemoteException, ServiceException {
+        public Configuration(String project) {
 
             String wikiPage = wikiPagePrefix + project + wikiPageSuffix;
-            log.warn("Reading " + wikiSpace + ":" + wikiPage + " from " + wikiURL);
-            ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService(wikiURL, wikiUsername, wikiPassword);
-            String configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(), wikiSpace,
-                    wikiPage).getContent();
-            for (String configLine : configPage.split("\n")) {
-                Matcher matcher = tableRegex.matcher(configLine);
-                if (matcher.matches()) {
-                    String firstColumn = matcher.group(1);
-                    String restOfLine = matcher.group(2);
-                    matcher = approvalIssueTypeRegex.matcher(firstColumn);
+            String description = wikiSpace + ":" + wikiPage + " from " + wikiURL;
+            log.warn("Reading " + description);
+            String configPage = lastConfigPages.get(project);
+            try {
+                ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService(wikiURL, wikiUsername,
+                        wikiPassword);
+                configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(),
+                        wikiSpace, wikiPage).getContent();
+                lastConfigPages.put(project, configPage);
+            } catch (Throwable t) {
+                log.error("Ubable to load " + description, t);
+                if (configPage != null)
+                    log.warn("Using previously loaded configuration");
+            }
+            if (configPage == null)
+                log.error("No configuration available!");
+            else {
+                for (String configLine : configPage.split("\n")) {
+                    Matcher matcher = tableRegex.matcher(configLine);
                     if (matcher.matches()) {
-                        String approval = firstColumn;
-                        matcher = tableRegex.matcher(restOfLine);
-                        if (matcher.matches()) {
-                            String approver = matcher.group(1);
-                            approvers.put(approval, approver);
-                            log.warn("Approver for " + approval + " is " + approver);
-                        }
-                    } else {
-                        String service = firstColumn;
-                        matcher = tableRegex.matcher(restOfLine);
-                        if (matcher.matches()) {
-                            String type = matcher.group(1);
-                            List<String> approvalsList = new ArrayList<String>();
-                            while (true) {
-                                restOfLine = matcher.group(2);
-                                matcher = tableRegex.matcher(restOfLine);
-                                if (matcher.matches()) {
-                                    String approval = matcher.group(1);
-                                    if (approvalIssueTypeRegex.matcher(approval).matches())
-                                        approvalsList.add(approval);
-                                } else
-                                    break;
+                        String firstColumn = matcher.group(1);
+                        String restOfLine = matcher.group(2);
+                        if (isApprovalIssueType(firstColumn)) {
+                            String approval = firstColumn;
+                            matcher = tableRegex.matcher(restOfLine);
+                            if (matcher.matches()) {
+                                String approver = matcher.group(1);
+                                approvers.put(approval, approver);
+                                log.info("Approver for " + approval + " is " + approver);
                             }
-                            requiredApprovals.put(combinedServiceAndType(service, type), approvalsList);
-                            log.warn("Approval of " + service + " - " + type);
-                            for (String approval : approvalsList)
-                                log.warn(" requires " + approval);
+                        } else {
+                            String service = firstColumn;
+                            matcher = tableRegex.matcher(restOfLine);
+                            if (matcher.matches()) {
+                                String type = matcher.group(1);
+                                List<String> approvalsList = new ArrayList<String>();
+                                while (true) {
+                                    restOfLine = matcher.group(2);
+                                    matcher = tableRegex.matcher(restOfLine);
+                                    if (matcher.matches()) {
+                                        String approval = matcher.group(1);
+                                        if (isApprovalIssueType(approval))
+                                            approvalsList.add(approval);
+                                    } else
+                                        break;
+                                }
+                                requiredApprovals.put(combinedServiceAndType(service, type), approvalsList);
+                                log.info("Approval of " + service + " - " + type);
+                                for (String approval : approvalsList)
+                                    log.info(" requires " + approval);
+                            }
                         }
                     }
                 }
@@ -111,7 +125,7 @@ public class ApprovalsConfiguration {
         }
     }
 
-    public Map<String, String> getApprovalsAndApprovers(String project, String service, String type)
+    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type)
             throws MalformedURLException, RemoteException, ServiceException {
 
         Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
@@ -123,9 +137,14 @@ public class ApprovalsConfiguration {
         return approvalsAndApprovers;
     }
 
-    public String getApprover(String project, String requiredApproval) throws MalformedURLException, RemoteException,
-            ServiceException {
+    synchronized public String getApprover(String project, String requiredApproval) throws MalformedURLException,
+            RemoteException, ServiceException {
 
         return new Configuration(project).getApprover(requiredApproval);
+    }
+
+    public boolean isApprovalIssueType(String issueType) {
+
+        return approvalIssueTypeRegex.matcher(issueType).matches();
     }
 }

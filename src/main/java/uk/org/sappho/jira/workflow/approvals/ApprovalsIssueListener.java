@@ -30,48 +30,29 @@ public class ApprovalsIssueListener implements IssueEventListener {
             String project = issue.getProjectObject().getKey();
             // check that the new issue is in a relevant project
             if (projects.get(project) != null) {
-                if (ApprovalsConfiguration.approvalIssueTypeRegex.matcher(issueType).matches()) {
+                // is it an approval issue?
+                if (approvalsConfiguration.isApprovalIssueType(issueType)) {
                     try {
+                        // approvals sub-tasks are assigned to the approval type team lead by default
                         String approver = approvalsConfiguration.getApprover(project, issueType);
-                        User user = componentManager.getUserUtil().getUser(approver);
-                        issue.setAssignee(user);
-                        issue.store();
-                        log.warn("Assigned approval issue " + issue.getKey() + " to " + user.getFullName());
+                        if (approver != null) {
+                            User user = componentManager.getUserUtil().getUser(approver);
+                            if (user != null) {
+                                issue.setAssignee(user);
+                                // store the change - will not persist otherwise
+                                issue.store();
+                                log.warn("Assigned approval issue " + issue.getKey() + " to " + user.getFullName());
+                            }
+                        }
                     } catch (Throwable t) {
                     }
                 } else if (issueTypes.get(issueType) != null) {
+                    // new non-approvals issues will always default to being assigned to the person raising the issue
                     User user = componentManager.getJiraAuthenticationContext().getUser();
                     issue.setAssignee(user);
+                    // store the change - will not persist otherwise
                     issue.store();
                     log.warn("Assigned issue " + issue.getKey() + " to logged in reporter " + user.getFullName());
-                    /*
-                    Object serviceAndTypeObj = issue.getCustomFieldValue(serviceTypeField);
-                    CustomFieldParams serviceAndType = null;
-                    if (serviceAndTypeObj != null && serviceAndTypeObj instanceof CustomFieldParams)
-                        serviceAndType = (CustomFieldParams) serviceAndTypeObj;
-                    if (serviceAndType == null)
-                        log.warn("Invalid Service / Type field value!");
-                    else {
-                        Object serviceObj = serviceAndType.getFirstValueForNullKey();
-                        Object typeObj = serviceAndType.getFirstValueForKey("1");
-                        String service = null;
-                        String type = null;
-                        if (serviceObj != null && serviceObj instanceof Option)
-                            service = ((Option) serviceObj).getValue();
-                        if (typeObj != null && typeObj instanceof Option)
-                            type = ((Option) typeObj).getValue();
-                        if (service == null || type == null)
-                            log.warn("Invalid Service / Type field value!");
-                        else {
-                            log.warn("service: " + service);
-                            log.warn("type: " + type);
-                            try {
-                                approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
-                            } catch (Throwable t) {
-                            }
-                        }
-                    }
-                    */
                 }
             }
         }
@@ -88,7 +69,8 @@ public class ApprovalsIssueListener implements IssueEventListener {
             log.warn("Service / Type custom field is not configured!");
         approvalsConfiguration = new ApprovalsConfiguration(getParam(params, "wiki.url"), getParam(params,
                 "wiki.username"), getParam(params, "wiki.password"), getParam(params, "wiki.space"), getParam(params,
-                "wiki.page.prefix"), getParam(params, "wiki.page.suffix"));
+                "wiki.page.prefix"), getParam(params, "wiki.page.suffix"),
+                getParam(params, "approval.issue.type.regex"));
     }
 
     @SuppressWarnings("unchecked")
@@ -116,7 +98,7 @@ public class ApprovalsIssueListener implements IssueEventListener {
     public String[] getAcceptedParams() {
 
         return new String[] { "issue.types", "projects", "wiki.url", "wiki.username", "wiki.password", "wiki.space",
-                "wiki.page.prefix", "wiki.page.suffix" };
+                "wiki.page.prefix", "wiki.page.suffix", "approval.issue.type.regex" };
     }
 
     public String getDescription() {

@@ -31,7 +31,8 @@ public class RegexTest {
     public void shouldGetConfig() throws MalformedURLException, RemoteException, ServiceException {
 
         ApprovalsConfiguration approvalsConfiguration = new ApprovalsConfiguration("http://wiki.catlin.com",
-                "build_dev", "Build_D3v", "SYSCON", "", "Approvals");
+                "build_dev", "Build_D3v", "SYSCON", "", "Approvals",
+                "^Approval : (Technical|Management) : [a-zA-Z][a-zA-Z ]*[a-zA-Z]$");
         Map<String, String> approvals = approvalsConfiguration.getApprovalsAndApprovers("CRM", "Application",
                 "theFrame");
         for (String approval : approvals.keySet())

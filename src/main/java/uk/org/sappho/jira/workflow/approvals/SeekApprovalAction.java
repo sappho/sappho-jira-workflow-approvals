@@ -1,6 +1,5 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -8,59 +7,88 @@ import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.customfields.option.Option;
+import com.atlassian.jira.issue.customfields.view.CustomFieldParams;
+import com.atlassian.jira.issue.fields.CustomField;
+import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.project.Project;
 import com.atlassian.jira.workflow.function.issue.AbstractJiraFunctionProvider;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.User;
 import com.opensymphony.workflow.WorkflowException;
 
-import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
-
 public class SeekApprovalAction extends AbstractJiraFunctionProvider {
 
-    private String wikiURL;
-    private String wikiUsername;
-    private String wikiPassword;
-    private String wikiSpace;
-    private String wikiPagePrefix;
-    private String wikiPageSuffix;
+    private CustomField serviceTypeField;
+    private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(SeekApprovalAction.class);
 
     @SuppressWarnings("unchecked")
-    public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
+    public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
+        MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
+        Project projectObj = issueToBeApproved.getProjectObject();
+        String project = projectObj.getKey();
+        String summary = issueToBeApproved.getSummary();
+        log.warn(issueToBeApproved.getKey() + " needs approval");
+
+        serviceTypeField = componentManager.getCustomFieldManager().getCustomFieldObjectByName("Service / Type");
+        if (serviceTypeField == null)
+            throw new WorkflowException("Service / Type custom field is not configured!");
+        Object serviceAndTypeObj = issueToBeApproved.getCustomFieldValue(serviceTypeField);
+        CustomFieldParams serviceAndType = null;
+        if (serviceAndTypeObj != null && serviceAndTypeObj instanceof CustomFieldParams)
+            serviceAndType = (CustomFieldParams) serviceAndTypeObj;
+        if (serviceAndType == null)
+            throw new WorkflowException("Invalid Service / Type field value!");
+        Object serviceObj = serviceAndType.getFirstValueForNullKey();
+        Object typeObj = serviceAndType.getFirstValueForKey("1");
+        String service = null;
+        String type = null;
+        if (serviceObj != null && serviceObj instanceof Option)
+            service = ((Option) serviceObj).getValue();
+        if (typeObj != null && typeObj instanceof Option)
+            type = ((Option) typeObj).getValue();
+        if (service == null || type == null)
+            throw new WorkflowException("Invalid Service / Type field value!");
+        log.warn("service: " + service);
+        log.warn("type: " + type);
+        ApprovalsConfiguration approvalsConfiguration = null;
+        Map<String, String> approvals = null;
         try {
-            MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
-            String project = issueToBeApproved.getProjectObject().getKey();
-            log.warn(issueToBeApproved.getKey() + " needs approval");
-            Collection<GenericValue> components = issueToBeApproved.getComponents();
-            for (GenericValue component : components) {
-                String componentName = component.getString("name");
-                log.warn("Component: " + componentName);
-            }
-            ComponentManager componentManager = ComponentManager.getInstance();
-            User user = componentManager.getJiraAuthenticationContext().getUser();
-
-            ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService(wikiURL, wikiUsername,
-                    wikiPassword);
-            String configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(),
-                    wikiSpace, project + wikiPageSuffix).getContent();
-
-            MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
-            approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
-            approvalTask.setIssueTypeId("32");
-            approvalTask.setAssignee(user);
-            approvalTask.setReporter(user);
-            approvalTask.setSummary("Get approval");
-            approvalTask.setDescription("Test 123");
-            approvalTask.setParentId(issueToBeApproved.getParentId());
-
-            GenericValue createdIssue = componentManager.getIssueManager().createIssue(user, approvalTask);
-            createdIssue.store();
-            componentManager.getSubTaskManager().createSubTaskIssueLink(issueToBeApproved.getGenericValue(),
-                    createdIssue, user);
-            issueToBeApproved.store();
-        } catch (Throwable t) {
-            throw new WorkflowException("Unable to create approvals tasks", t);
+            approvalsConfiguration = ApprovalsConfiguration.getInstance();
+            approvals = approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
+        } catch (Exception e) {
+            throw new WorkflowException("Unable to get approvals configuration!", e);
         }
+
+        User user = componentManager.getJiraAuthenticationContext().getUser();
+        Iterable<IssueType> allIssueTypes = componentManager.getConstantsManager().getAllIssueTypeObjects();
+
+        for (String approvalIssueType : approvals.keySet())
+            if (approvalsConfiguration.isApprovalIssueType(approvalIssueType, "wiki.approvals.type.regex.technical"))
+                for (IssueType potentialIssueType : allIssueTypes)
+                    if (potentialIssueType.getName().equals(approvalIssueType)) {
+                        MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
+                        approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
+                        approvalTask.setIssueTypeId(potentialIssueType.getId());
+                        approvalTask.setReporter(user);
+                        approvalTask.setAssignee(componentManager.getUserUtil().getUser(
+                                approvals.get(approvalIssueType)));
+                        approvalTask.setSummary(approvalIssueType + " : " + summary);
+                        approvalTask.setParentId(issueToBeApproved.getParentId());
+                        try {
+                            GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
+                                    approvalTask);
+                            createdIssue.store();
+                            componentManager.getSubTaskManager().createSubTaskIssueLink(
+                                    issueToBeApproved.getGenericValue(),
+                                    createdIssue, user);
+                            issueToBeApproved.store();
+                        } catch (Exception e) {
+                            throw new WorkflowException("Unable to create approval sub-tasks!", e);
+                        }
+                        break;
+                    }
     }
 }

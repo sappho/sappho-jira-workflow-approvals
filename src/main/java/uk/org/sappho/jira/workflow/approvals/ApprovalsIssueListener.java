@@ -20,7 +20,6 @@ public class ApprovalsIssueListener implements IssueEventListener {
     private final Map<String, String> issueTypes = new HashMap<String, String>();
     private final Map<String, String> projects = new HashMap<String, String>();
     private final Map<String, Integer> autoTransitionStates = new HashMap<String, Integer>();
-    private ApprovalsConfiguration approvalsConfiguration;
     private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(ApprovalsIssueListener.class);
 
@@ -48,20 +47,7 @@ public class ApprovalsIssueListener implements IssueEventListener {
         // check that the new issue is in a relevant project
         if (projects.get(project) != null) {
             String issueType = issue.getIssueTypeObject().getName();
-            // is it an approval issue?
-            if (approvalsConfiguration.isApprovalIssueType(issueType, ApprovalsConfiguration.allApprovalsTypeRegexKey)) {
-                try {
-                    // approvals sub-tasks are assigned to the approval type team lead by default
-                    String approver = approvalsConfiguration.getApprover(project, issueType);
-                    if (approver != null) {
-                        User user = componentManager.getUserUtil().getUser(approver);
-                        if (user != null)
-                            setAssignee(issue, user);
-                    }
-                } catch (Throwable t) {
-                }
-                // otherwise it has to be an issue type configured for handling
-            } else if (issueTypes.get(issueType) != null)
+            if (issueTypes.get(issueType) != null)
                 // new non-approvals issues will always default to being assigned to the person raising the issue
                 setAssignee(issue, componentManager.getJiraAuthenticationContext().getUser());
         }
@@ -108,7 +94,7 @@ public class ApprovalsIssueListener implements IssueEventListener {
 
         log.warn("Initialising Approvals Issue Listener parameters");
         try {
-            approvalsConfiguration = ApprovalsConfiguration.getInstance();
+            ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
             for (String project : approvalsConfiguration.getPropertyList("approval.projects")) {
                 projects.put(project, project);
                 log.warn("Project: " + project);

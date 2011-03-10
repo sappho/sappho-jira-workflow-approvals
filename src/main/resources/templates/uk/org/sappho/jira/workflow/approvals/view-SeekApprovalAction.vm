@@ -1,2 +1,2 @@
-<p>Seek approval by auto-creating approval sub-tasks.</p>
-<p>Approval type: $approvalType.</p>
+Seek approval by auto-creating approval sub-tasks.<br/>
+Approval type: <b>$approvalType</b>.

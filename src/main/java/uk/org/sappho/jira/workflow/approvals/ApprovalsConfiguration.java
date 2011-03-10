@@ -142,9 +142,10 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
         WikiPageConfiguration configuration = new WikiPageConfiguration(project);
         List<String> requiredApprovals = configuration.getRequiredApprovals(service, type);
-        for (String requiredApproval : requiredApprovals) {
-            approvalsAndApprovers.put(requiredApproval, configuration.getApprover(requiredApproval));
-        }
+        if (requiredApprovals != null)
+            for (String requiredApproval : requiredApprovals) {
+                approvalsAndApprovers.put(requiredApproval, configuration.getApprover(requiredApproval));
+            }
         return approvalsAndApprovers;
     }
 

@@ -9,11 +9,20 @@
 	</plugin-info>
 
 	<workflow-function
-		key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Action"
-		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-		<description>Sappho Approve Action</description>
+		key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Parent Issue"
+		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
+		<description>Grant approval on parent issue</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.ApproveAction
 		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ApproveAction.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-function>
 
 	<workflow-function
@@ -42,8 +51,9 @@
 
 	<workflow-function
 		key="${project.groupId}.${project.artifactId}.SeekApprovalAction"
-		name="Seek Approval" class="uk.org.sappho.jira.workflow.approvals.SeekApprovalActionFactory">
-		<description>Seek approval by creating approval sub-tasks</description>
+		name="Seek Approval" class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
+		<description>Seek approval by creating approval sub-tasks
+		</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction
 		</function-class>
 		<orderable>true</orderable>
@@ -52,9 +62,9 @@
 		<resource type="velocity" name="view"
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-SeekApprovalAction.vm" />
 		<resource type="velocity" name="input-parameters"
-			location="templates/uk/org/sappho/jira/workflow/approvals/edit-SeekApprovalAction.vm" />
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 		<resource type="velocity" name="edit-parameters"
-			location="templates/uk/org/sappho/jira/workflow/approvals/edit-SeekApprovalAction.vm" />
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-function>
 
 </atlassian-plugin>

@@ -1,12 +1,9 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-public class ReconsiderAction extends ApprovalAction {
+public class ReconsiderAction extends DecideAction {
 
+    @Override
     protected String getAction() {
-        return "is reconsidering";
-    }
-
-    protected String getFlag() {
-        return "waiting";
+        return "am reconsidering";
     }
 }

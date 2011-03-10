@@ -29,7 +29,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
-    public static final String allApprovalsTypeRegexKey = "approvals.type.regex.all";
+    public static final String allApprovalsTypeRegexKeySuffix = "all";
     public static final String undefined = "undefined";
     private static ApprovalsConfiguration approvalsConfiguration = null;
 
@@ -85,7 +85,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                     if (matcher.matches()) {
                         String firstColumn = matcher.group(1);
                         String restOfLine = matcher.group(2);
-                        if (isApprovalIssueType(firstColumn, allApprovalsTypeRegexKey)) {
+                        if (isApprovalIssueType(firstColumn, allApprovalsTypeRegexKeySuffix)) {
                             String approval = firstColumn;
                             matcher = tableRegex.matcher(restOfLine);
                             if (matcher.matches()) {
@@ -104,7 +104,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                                     matcher = tableRegex.matcher(restOfLine);
                                     if (matcher.matches()) {
                                         String approval = matcher.group(1);
-                                        if (isApprovalIssueType(approval, allApprovalsTypeRegexKey))
+                                        if (isApprovalIssueType(approval, allApprovalsTypeRegexKeySuffix))
                                             approvalsList.add(approval);
                                     } else
                                         break;
@@ -155,9 +155,10 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         return new WikiPageConfiguration(project).getApprover(requiredApproval);
     }
 
-    public boolean isApprovalIssueType(String issueType, String regexKey) {
+    public boolean isApprovalIssueType(String issueType, String regexKeySuffix) {
 
-        return Pattern.compile(getProperty(regexKey, "undefined")).matcher(issueType).matches();
+        return Pattern.compile(getProperty("approvals.type.regex." + regexKeySuffix, "undefined")).matcher(issueType)
+                .matches();
     }
 
     synchronized public static ApprovalsConfiguration getInstance() throws ConfigurationException {

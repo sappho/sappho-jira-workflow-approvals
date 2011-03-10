@@ -8,7 +8,7 @@ import com.atlassian.jira.plugin.workflow.WorkflowPluginFunctionFactory;
 import com.opensymphony.workflow.loader.AbstractDescriptor;
 import com.opensymphony.workflow.loader.FunctionDescriptor;
 
-public class SeekApprovalActionFactory extends AbstractWorkflowPluginFactory implements WorkflowPluginFunctionFactory {
+public class ApprovalTypeFactory extends AbstractWorkflowPluginFactory implements WorkflowPluginFunctionFactory {
 
     public static final String approvalTypeKey = "approvalType";
 

@@ -11,6 +11,7 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import uk.org.sappho.configuration.ConfigurationException;
 
@@ -18,7 +19,7 @@ public class RegexTest {
 
     private static final Logger log = Logger.getLogger(RegexTest.class);
 
-    @Ignore
+    @Test
     public void shouldEvaluate() {
 
         Matcher matcher = ApprovalsConfiguration.tableRegex.matcher("| xx | z | qwert | fred |");

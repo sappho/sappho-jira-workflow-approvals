@@ -135,8 +135,7 @@ public class ApprovalsIssueListener implements IssueEventListener {
 
     public String[] getAcceptedParams() {
 
-        return new String[] { "issue.types", "projects", "wiki.url", "wiki.username", "wiki.password", "wiki.space",
-                "wiki.page.prefix", "wiki.page.suffix", "approval.issue.type.regex", "auto.transition.states" };
+        return new String[] {};
     }
 
     public String getDescription() {

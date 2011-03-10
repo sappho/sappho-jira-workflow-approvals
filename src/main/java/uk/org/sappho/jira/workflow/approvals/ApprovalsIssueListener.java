@@ -113,7 +113,7 @@ public class ApprovalsIssueListener implements IssueEventListener {
                 projects.put(project, project);
                 log.warn("Project: " + project);
             }
-            for (String issueType : approvalsConfiguration.getPropertyList("approval.main.issue.types")) {
+            for (String issueType : approvalsConfiguration.getPropertyList("approval.issue.types.main")) {
                 issueTypes.put(issueType, issueType);
                 log.warn("Issue type: " + issueType);
             }

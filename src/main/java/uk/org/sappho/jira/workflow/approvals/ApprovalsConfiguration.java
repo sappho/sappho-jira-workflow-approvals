@@ -29,7 +29,8 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
-    public static final String allApprovalsTypeRegexKey = "wiki.approvals.type.regex.all";
+    public static final String allApprovalsTypeRegexKey = "approvals.type.regex.all";
+    public static final String undefined = "undefined";
     private static ApprovalsConfiguration approvalsConfiguration = null;
 
     private ApprovalsConfiguration() throws ConfigurationException {
@@ -37,10 +38,10 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         super();
         log.warn("Loading approvals configuration from " + configurationFilename);
         load(configurationFilename);
-        wikiURL = getProperty("wiki.url", "unconfigured");
-        wikiUsername = getProperty("wiki.username", "unconfigured");
-        wikiPassword = getProperty("wiki.password", "unconfigured");
-        wikiSpace = getProperty("wiki.approvals.config.space", "unconfigured");
+        wikiURL = getProperty("wiki.url", undefined);
+        wikiUsername = getProperty("wiki.username", undefined);
+        wikiPassword = getProperty("wiki.password", undefined);
+        wikiSpace = getProperty("wiki.approvals.config.space", undefined);
         wikiPagePrefix = getProperty("wiki.approvals.config.page.prefix", "");
         wikiPageSuffix = getProperty("wiki.approvals.config.page.suffix", "");
         log.warn("Wiki URL: " + wikiURL);
@@ -155,7 +156,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
 
     public boolean isApprovalIssueType(String issueType, String regexKey) {
 
-        return Pattern.compile(getProperty(regexKey, "unconfigured")).matcher(issueType).matches();
+        return Pattern.compile(getProperty(regexKey, "undefined")).matcher(issueType).matches();
     }
 
     synchronized public static ApprovalsConfiguration getInstance() throws ConfigurationException {

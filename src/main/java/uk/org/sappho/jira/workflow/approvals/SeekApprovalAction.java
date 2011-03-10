@@ -24,7 +24,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
     private static final Logger log = Logger.getLogger(SeekApprovalAction.class);
 
     @SuppressWarnings("unchecked")
-    public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
+    public void execute(Map transientVars, Map params, PropertySet propertySet) throws WorkflowException {
 
         MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
         Project projectObj = issueToBeApproved.getProjectObject();
@@ -65,8 +65,10 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         User user = componentManager.getJiraAuthenticationContext().getUser();
         Iterable<IssueType> allIssueTypes = componentManager.getConstantsManager().getAllIssueTypeObjects();
 
+        String approvalType = (String) params.get(SeekApprovalActionFactory.approvalTypeKey);
+
         for (String approvalIssueType : approvals.keySet())
-            if (approvalsConfiguration.isApprovalIssueType(approvalIssueType, "wiki.approvals.type.regex.technical"))
+            if (approvalsConfiguration.isApprovalIssueType(approvalIssueType, "approvals.type.regex." + approvalType))
                 for (IssueType potentialIssueType : allIssueTypes)
                     if (potentialIssueType.getName().equals(approvalIssueType)) {
                         MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();

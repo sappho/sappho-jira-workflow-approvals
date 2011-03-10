@@ -1,35 +1,60 @@
-<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}">
+<atlassian-plugin key="${project.groupId}.${project.artifactId}"
+	name="${project.name}">
 
-    <plugin-info>
-        <description>${project.name}</description>
-        <version>${project.version}</version>
-        <application-version min="3.5" max="4.0"/>
-        <vendor name="Sappho OSS" url="http://www.sappho.org.uk"/>
-    </plugin-info>
+	<plugin-info>
+		<description>${project.name}</description>
+		<version>${project.version}</version>
+		<application-version min="3.5" max="4.0" />
+		<vendor name="Sappho OSS" url="http://www.sappho.org.uk" />
+	</plugin-info>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-        <description>Sappho Approve Action</description>
-        <function-class>uk.org.sappho.jira.workflow.approvals.ApproveAction</function-class>
-    </workflow-function>
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Action"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Sappho Approve Action</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.ApproveAction
+		</function-class>
+	</workflow-function>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.DeclineAction" name="Decline Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-        <description>Sappho Decline Action</description>
-        <function-class>uk.org.sappho.jira.workflow.approvals.DeclineAction</function-class>
-    </workflow-function>
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.DeclineAction" name="Decline Action"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Sappho Decline Action</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.DeclineAction
+		</function-class>
+	</workflow-function>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Reconsider Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-        <description>Sappho Reconsider Action</description>
-        <function-class>uk.org.sappho.jira.workflow.approvals.ReconsiderAction</function-class>
-    </workflow-function>
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Reconsider Action"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Sappho Reconsider Action</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.ReconsiderAction
+		</function-class>
+	</workflow-function>
 
-    <workflow-condition key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Approval Condition" class="uk.org.sappho.jira.workflow.approvals.ApprovalConditionFactory">
-        <description>Sappho Approval Condition</description>
-        <condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition</condition-class>
-    </workflow-condition>
+	<workflow-condition
+		key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Approval Condition"
+		class="uk.org.sappho.jira.workflow.approvals.ApprovalConditionFactory">
+		<description>Sappho Approval Condition</description>
+		<condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition
+		</condition-class>
+	</workflow-condition>
 
-    <workflow-function key="${project.groupId}.${project.artifactId}.SeekApprovalAction" name="Seek Approval Action" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-        <description>Sappho Seek Approval Action</description>
-        <function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction</function-class>
-    </workflow-function>
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.SeekApprovalAction"
+		name="Seek Approval Action" class="uk.org.sappho.jira.workflow.approvals.SeekApprovalActionFactory">
+		<description>Sappho Seek Approval Action</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-SeekApprovalAction.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-SeekApprovalAction.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-SeekApprovalAction.vm" />
+	</workflow-function>
 
 </atlassian-plugin>

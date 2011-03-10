@@ -1,0 +1,9 @@
+<tr bgcolor="#ffffff">
+    <td align="right" valign="top" bgcolor="#fffff0">
+        <span class="label">Approval type:</span>
+    </td>
+    <td bgcolor="#ffffff" nowrap>
+        <input type="text" name="approvalType" value="$approvalType"/>
+        <br><font size="1">Enter the approval type (e.g. &quot;technical&quot; or &quot;management&quot;)</font>
+    </td>
+</tr>

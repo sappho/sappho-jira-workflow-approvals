@@ -42,8 +42,8 @@
 
 	<workflow-function
 		key="${project.groupId}.${project.artifactId}.SeekApprovalAction"
-		name="Seek Approval Action" class="uk.org.sappho.jira.workflow.approvals.SeekApprovalActionFactory">
-		<description>Sappho Seek Approval Action</description>
+		name="Seek Approval" class="uk.org.sappho.jira.workflow.approvals.SeekApprovalActionFactory">
+		<description>Seek approval by creating approval sub-tasks</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction
 		</function-class>
 		<orderable>true</orderable>

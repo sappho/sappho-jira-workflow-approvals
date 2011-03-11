@@ -24,7 +24,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
-    public static final String allApprovalsTypeRegexKeySuffix = "all";
+    public static final String allApprovalsIssueTypes = "all";
     public static final String undefined = "undefined";
     private static ApprovalsConfiguration approvalsConfiguration = null;
 
@@ -76,7 +76,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                     if (matcher.matches()) {
                         String firstColumn = matcher.group(1);
                         String restOfLine = matcher.group(2);
-                        if (isIssueType(project, allApprovalsTypeRegexKeySuffix, firstColumn)) {
+                        if (isIssueType(project, allApprovalsIssueTypes, firstColumn)) {
                             String approval = firstColumn;
                             matcher = tableRegex.matcher(restOfLine);
                             if (matcher.matches()) {
@@ -95,7 +95,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                                     matcher = tableRegex.matcher(restOfLine);
                                     if (matcher.matches()) {
                                         String approval = matcher.group(1);
-                                        if (isIssueType(project, allApprovalsTypeRegexKeySuffix, approval))
+                                        if (isIssueType(project, allApprovalsIssueTypes, approval))
                                             approvalsList.add(approval);
                                     } else
                                         break;

@@ -37,14 +37,25 @@ public class ApprovalsIssueListener implements IssueEventListener {
             ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
             MutableIssue issue = (MutableIssue) event.getIssue();
             String project = issue.getProjectObject().getKey();
+            // Don't do anything if this project isn't configured
             if (approvalsConfiguration.isConfiguredProject(project)) {
                 boolean isChanged = false;
                 String issueType = issue.getIssueTypeObject().getName();
                 if (approvalsConfiguration.isIssueType(project, "auto.assign.reporter", issueType)) {
+                    // Set assignee to reporter for configured issue types
                     User user = ComponentManager.getInstance().getJiraAuthenticationContext().getUser();
                     issue.setAssignee(user);
                     isChanged = true;
                     log.warn("Assigned issue " + issue.getKey() + " to " + user.getFullName());
+                }
+                String summary = issue.getSummary();
+                if (approvalsConfiguration.isIssueType(
+                        project, ApprovalsConfiguration.allApprovalsIssueTypes, issueType)) {
+                    // Prefix issue type to summary if this is an approval issue
+                    summary = issueType + " / " + summary;
+                    issue.setSummary(summary);
+                    isChanged = true;
+                    log.warn("Changed summary for issue " + issue.getKey() + " to " + summary);
                 }
                 if (isChanged)
                     issue.store();

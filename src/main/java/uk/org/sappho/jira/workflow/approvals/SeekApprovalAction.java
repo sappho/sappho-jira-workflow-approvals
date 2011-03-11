@@ -71,6 +71,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
             existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
         }
 
+        // Create the approvals sub-tasks
         Map<String, String> approvalsAndApprovers =
                 approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
         Iterable<IssueType> allIssueTypes = componentManager.getConstantsManager().getAllIssueTypeObjects();
@@ -78,38 +79,39 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         for (String approvalIssueType : approvalsAndApprovers.keySet())
             if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
                 for (IssueType potentialIssueType : allIssueTypes)
-                    if (existingSubtaskIssueTypes.get(approvalIssueType) == null
-                            && potentialIssueType.getName().equals(approvalIssueType)) {
-                        String subTaskSummary = approvalIssueType + " / " + summary;
-                        String assignee = approvalsAndApprovers.get(approvalIssueType);
-                        if (assignee == null)
-                            throw new WorkflowException("There is no configured assignee for approval type "
-                                    + approvalIssueType + " - check wiki page!");
-                        log.warn("Creating sub-task " + subTaskSummary + " assigned to " + assignee);
-                        MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
-                        approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
-                        approvalTask.setIssueTypeId(potentialIssueType.getId());
-                        approvalTask.setReporter(user);
-                        approvalTask.setAssignee(componentManager.getUserUtil().getUser(assignee));
-                        approvalTask.setSummary(subTaskSummary);
-                        approvalTask.setParentId(issueToBeApproved.getParentId());
-                        try {
-                            GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
-                                    approvalTask);
-                            createdIssue.store();
-                            componentManager.getSubTaskManager().createSubTaskIssueLink(
-                                    issueToBeApproved.getGenericValue(),
-                                    createdIssue, user);
-                            issueToBeApproved.store();
-                            existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
-                        } catch (Exception e) {
-                            throw new WorkflowException("Unable to create approval sub-tasks!", e);
+                    if (potentialIssueType.getName().equals(approvalIssueType)) {
+                        if (existingSubtaskIssueTypes.get(approvalIssueType) == null) {
+                            String assignee = approvalsAndApprovers.get(approvalIssueType);
+                            if (assignee == null)
+                                throw new WorkflowException("There is no configured assignee for approval type "
+                                        + approvalIssueType + " - check wiki page!");
+                            log.warn("Creating " + approvalIssueType + " sub-task " + summary + " assigned to "
+                                    + assignee);
+                            MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
+                            approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
+                            approvalTask.setIssueTypeId(potentialIssueType.getId());
+                            approvalTask.setReporter(user);
+                            approvalTask.setAssignee(componentManager.getUserUtil().getUser(assignee));
+                            approvalTask.setSummary(summary);
+                            approvalTask.setParentId(issueToBeApproved.getParentId());
+                            try {
+                                GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
+                                        approvalTask);
+                                createdIssue.store();
+                                componentManager.getSubTaskManager().createSubTaskIssueLink(
+                                        issueToBeApproved.getGenericValue(),
+                                        createdIssue, user);
+                                issueToBeApproved.store();
+                                existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
+                            } catch (Exception e) {
+                                throw new WorkflowException("Unable to create approval sub-tasks!", e);
+                            }
                         }
                         noApprovals = false;
                         break;
                     }
         if (noApprovals)
-            throw new WorkflowException("Missing approvals configuration for service/type of " + service + "/"
-                    + type + " - check wiki page!");
+            throw new WorkflowException("Invalid approvals configuration for service/type of " + service
+                    + "/" + type + " - check wiki page!");
     }
 }

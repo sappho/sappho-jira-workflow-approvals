@@ -20,31 +20,21 @@ public class ApproveAction extends DecideAction {
     @Override
     protected void bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
 
-        ApprovalsConfiguration approvalsConfiguration = null;
-        try {
-            approvalsConfiguration = ApprovalsConfiguration.getInstance();
-        } catch (Throwable e) {
-            throw new WorkflowException("Unable to get plugin configuration!", e);
-        }
-        String approvedStatus = approvalsConfiguration.getProperty("approvals.status.approved",
-                ApprovalsConfiguration.undefined);
-        String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
+        ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
         MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
+        String project = parentIssue.getProjectObject().getKey();
+        String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
         boolean isApproved = true;
         for (MutableIssue subTask : parentIssue.getSubTaskObjects())
-            if (approvalsConfiguration.isApprovalIssueType(subTask.getIssueTypeObject().getName(), approvalType)
-                    && !subTask.getStatusObject().getName().equals(approvedStatus)) {
+            if (approvalsConfiguration.isIssueType(project, approvalType, subTask.getIssueTypeObject().getName())
+                    && !approvalsConfiguration.isRegexMatch(project, "statuses.approved", subTask.getStatusObject()
+                            .getName())) {
                 isApproved = false;
                 break;
             }
         if (isApproved) {
-            int transitionActionId;
-            try {
-                transitionActionId = Integer.parseInt(approvalsConfiguration.getProperty(
-                        "approvals.auto.transition.action." + approvalType, "-999"));
-            } catch (Throwable t) {
-                throw new WorkflowException("Unable to get auto-transition configuration!", t);
-            }
+            int transitionActionId = Integer.parseInt(approvalsConfiguration.getProperty(project,
+                    "auto.transition.action." + approvalType, "-999"));
             log.warn("Running workflow transition action id " + transitionActionId + " on " + parentIssue.getKey());
             WorkflowTransitionUtil workflowTransitionUtil = JiraUtils.loadComponent(WorkflowTransitionUtilImpl.class);
             workflowTransitionUtil.setIssue(parentIssue);
@@ -53,10 +43,12 @@ public class ApproveAction extends DecideAction {
             workflowTransitionUtil.setAction(transitionActionId);
             ErrorCollection errors = workflowTransitionUtil.validate();
             if (errors.hasAnyErrors())
-                throw new WorkflowException("Unable to transition " + parentIssue.getKey() + "! Caused by " + errors);
+                throw new WorkflowException("Unable to validate transition " + parentIssue.getKey() + "! Caused by "
+                        + errors);
             errors = workflowTransitionUtil.progress();
             if (errors.hasAnyErrors())
-                throw new WorkflowException("Unable to transition " + parentIssue.getKey() + "! Caused by " + errors);
+                throw new WorkflowException("Unable to progress transition " + parentIssue.getKey() + "! Caused by "
+                        + errors);
         }
     }
 

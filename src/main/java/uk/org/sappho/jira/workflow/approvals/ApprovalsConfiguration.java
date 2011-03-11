@@ -1,7 +1,5 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-import java.net.MalformedURLException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,22 +7,19 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.rpc.ServiceException;
-
 import org.apache.log4j.Logger;
 
-import uk.org.sappho.configuration.ConfigurationException;
+import com.opensymphony.workflow.WorkflowException;
+
 import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
 
 public class ApprovalsConfiguration extends SimpleConfiguration {
 
+    private final Pattern projectsRegex;
     private final String wikiURL;
     private final String wikiUsername;
     private final String wikiPassword;
-    private final String wikiSpace;
-    private String wikiPagePrefix;
-    private String wikiPageSuffix;
     private final Map<String, String> lastConfigPages = new HashMap<String, String>();
     protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
@@ -33,26 +28,21 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     public static final String undefined = "undefined";
     private static ApprovalsConfiguration approvalsConfiguration = null;
 
-    private ApprovalsConfiguration() throws ConfigurationException {
+    private ApprovalsConfiguration() throws WorkflowException {
 
         super();
-        log.warn("Loading approvals configuration from " + configurationFilename);
-        load(configurationFilename);
-        wikiURL = getProperty("wiki.url", undefined);
-        wikiUsername = getProperty("wiki.username", undefined);
-        wikiPassword = getProperty("wiki.password", undefined);
-        wikiSpace = getProperty("wiki.approvals.config.space", undefined);
-        wikiPagePrefix = getProperty("wiki.approvals.config.page.prefix", "");
-        wikiPageSuffix = getProperty("wiki.approvals.config.page.suffix", "");
-        log.warn("Wiki URL: " + wikiURL);
-        log.warn("Wiki username: " + wikiUsername);
-        log.warn("Wiki space: " + wikiSpace);
-        log.warn("Wiki page prefix: " + wikiPagePrefix);
-        log.warn("Wiki page suffix: " + wikiPageSuffix);
-        if (wikiPagePrefix.length() > 0)
-            wikiPagePrefix += " ";
-        if (wikiPageSuffix.length() > 0)
-            wikiPageSuffix = " " + wikiPageSuffix;
+        try {
+            log.warn("Loading approvals configuration from " + configurationFilename);
+            load(configurationFilename);
+            projectsRegex = Pattern.compile(getProperty("projects"));
+            wikiURL = getProperty("wiki.url");
+            wikiUsername = getProperty("wiki.username");
+            wikiPassword = getProperty("wiki.password");
+            log.warn("Wiki URL: " + wikiURL);
+            log.warn("Wiki username: " + wikiUsername);
+        } catch (Throwable t) {
+            throw new WorkflowException("Unable to get approvals plugin configuration!", t);
+        }
     }
 
     public class WikiPageConfiguration {
@@ -62,7 +52,8 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
 
         public WikiPageConfiguration(String project) {
 
-            String wikiPage = wikiPagePrefix + project + wikiPageSuffix;
+            String wikiSpace = getProperty(project, "wiki.approvals.config.space", undefined);
+            String wikiPage = getProperty(project, "wiki.approvals.config.page", undefined);
             String description = wikiSpace + ":" + wikiPage + " from " + wikiURL;
             log.warn("Reading " + description);
             String configPage = lastConfigPages.get(project);
@@ -85,7 +76,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                     if (matcher.matches()) {
                         String firstColumn = matcher.group(1);
                         String restOfLine = matcher.group(2);
-                        if (isApprovalIssueType(firstColumn, allApprovalsTypeRegexKeySuffix)) {
+                        if (isIssueType(project, firstColumn, allApprovalsTypeRegexKeySuffix)) {
                             String approval = firstColumn;
                             matcher = tableRegex.matcher(restOfLine);
                             if (matcher.matches()) {
@@ -104,7 +95,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                                     matcher = tableRegex.matcher(restOfLine);
                                     if (matcher.matches()) {
                                         String approval = matcher.group(1);
-                                        if (isApprovalIssueType(approval, allApprovalsTypeRegexKeySuffix))
+                                        if (isIssueType(project, approval, allApprovalsTypeRegexKeySuffix))
                                             approvalsList.add(approval);
                                     } else
                                         break;
@@ -136,8 +127,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         }
     }
 
-    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type)
-            throws MalformedURLException, RemoteException, ServiceException {
+    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type) {
 
         Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
         WikiPageConfiguration configuration = new WikiPageConfiguration(project);
@@ -149,19 +139,32 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         return approvalsAndApprovers;
     }
 
-    synchronized public String getApprover(String project, String requiredApproval) throws MalformedURLException,
-            RemoteException, ServiceException {
+    synchronized public String getApprover(String project, String requiredApproval) {
 
         return new WikiPageConfiguration(project).getApprover(requiredApproval);
     }
 
-    public boolean isApprovalIssueType(String issueType, String regexKeySuffix) {
+    public boolean isIssueType(String project, String key, String issueType) {
 
-        return Pattern.compile(getProperty("approvals.type.regex." + regexKeySuffix, "undefined")).matcher(issueType)
-                .matches();
+        return isRegexMatch(project, "issue.types." + key, issueType);
     }
 
-    synchronized public static ApprovalsConfiguration getInstance() throws ConfigurationException {
+    public boolean isRegexMatch(String project, String key, String value) {
+
+        return Pattern.compile(getProperty(project, key, undefined)).matcher(value).matches();
+    }
+
+    public boolean isConfiguredProject(String project) {
+
+        return projectsRegex.matcher(project).matches();
+    }
+
+    public String getProperty(String project, String key, String defaultValue) {
+
+        return getProperty(project + "." + key, defaultValue);
+    }
+
+    synchronized public static ApprovalsConfiguration getInstance() throws WorkflowException {
 
         if (approvalsConfiguration == null)
             approvalsConfiguration = new ApprovalsConfiguration();

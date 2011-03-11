@@ -2,18 +2,14 @@ package uk.org.sappho.jira.workflow.approvals;
 
 import static org.junit.Assert.assertTrue;
 
-import java.net.MalformedURLException;
-import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.regex.Matcher;
-
-import javax.xml.rpc.ServiceException;
 
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.sappho.configuration.ConfigurationException;
+import com.opensymphony.workflow.WorkflowException;
 
 public class RegexTest {
 
@@ -31,8 +27,7 @@ public class RegexTest {
     }
 
     @Ignore
-    public void shouldGetConfig() throws MalformedURLException, RemoteException, ServiceException,
-            ConfigurationException {
+    public void shouldGetConfig() throws WorkflowException {
 
         ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
         Map<String, String> approvals = approvalsConfiguration.getApprovalsAndApprovers("CRM", "Application",

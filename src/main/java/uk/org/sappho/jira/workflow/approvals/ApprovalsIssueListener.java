@@ -1,6 +1,5 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -13,9 +12,6 @@ import com.opensymphony.user.User;
 
 public class ApprovalsIssueListener implements IssueEventListener {
 
-    private final Map<String, String> issueTypes = new HashMap<String, String>();
-    private final Map<String, String> projects = new HashMap<String, String>();
-    private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(ApprovalsIssueListener.class);
 
     public void workflowEvent(IssueEvent event) {
@@ -37,41 +33,29 @@ public class ApprovalsIssueListener implements IssueEventListener {
 
     public void issueCreated(IssueEvent event) {
 
-        MutableIssue issue = (MutableIssue) event.getIssue();
-        String project = issue.getProjectObject().getKey();
-        // check that the new issue is in a relevant project
-        if (projects.get(project) != null) {
-            String issueType = issue.getIssueTypeObject().getName();
-            if (issueTypes.get(issueType) != null)
-                // new non-approvals issues will always default to being assigned to the person raising the issue
-                setAssignee(issue, componentManager.getJiraAuthenticationContext().getUser());
+        try {
+            ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
+            MutableIssue issue = (MutableIssue) event.getIssue();
+            String project = issue.getProjectObject().getKey();
+            if (approvalsConfiguration.isConfiguredProject(project)) {
+                boolean isChanged = false;
+                String issueType = issue.getIssueTypeObject().getName();
+                if (approvalsConfiguration.isIssueType(project, "auto.assign.reporter", issueType)) {
+                    User user = ComponentManager.getInstance().getJiraAuthenticationContext().getUser();
+                    issue.setAssignee(user);
+                    isChanged = true;
+                    log.warn("Assigned issue " + issue.getKey() + " to " + user.getFullName());
+                }
+                if (isChanged)
+                    issue.store();
+            }
+        } catch (Throwable t) {
+            log.error("Unable to completely process an issue creation event!", t);
         }
-    }
-
-    private void setAssignee(MutableIssue issue, User user) {
-
-        issue.setAssignee(user);
-        issue.store();
-        log.warn("Assigned issue " + issue.getKey() + " to " + user.getFullName());
     }
 
     @SuppressWarnings("unchecked")
     public void init(Map params) {
-
-        log.warn("Initialising Approvals Issue Listener parameters");
-        try {
-            ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
-            for (String project : approvalsConfiguration.getPropertyList("approval.projects")) {
-                projects.put(project, project);
-                log.warn("Project: " + project);
-            }
-            for (String issueType : approvalsConfiguration.getPropertyList("approval.issue.types.main")) {
-                issueTypes.put(issueType, issueType);
-                log.warn("Issue type: " + issueType);
-            }
-        } catch (Exception e) {
-            log.error("Unable to load listener configuration!", e);
-        }
     }
 
     public String[] getAcceptedParams() {
@@ -86,12 +70,12 @@ public class ApprovalsIssueListener implements IssueEventListener {
 
     public boolean isInternal() {
 
-        return false;
+        return false; // this listener can be deleted
     }
 
     public boolean isUnique() {
 
-        return false;
+        return true; // this listener can only be a singleton
     }
 
     public void customEvent(IssueEvent event) {

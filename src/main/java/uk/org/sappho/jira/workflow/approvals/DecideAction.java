@@ -25,8 +25,7 @@ abstract public class DecideAction implements FunctionProvider {
 
     @SuppressWarnings("unchecked")
     protected void bumpWorkflow(@SuppressWarnings("unused") MutableIssue approvalIssue,
-            @SuppressWarnings("unused") Map params)
-            throws WorkflowException {
+            @SuppressWarnings("unused") Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
     }

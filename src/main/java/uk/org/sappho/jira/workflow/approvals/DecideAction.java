@@ -19,7 +19,7 @@ abstract public class DecideAction implements FunctionProvider {
         componentManager.getCommentManager().create(
                 approvalIssue.getParentObject(),
                 componentManager.getJiraAuthenticationContext().getUser().getName(),
-                "I " + getAction() + " " + approvalIssue.getIssueTypeObject().getName() + " approval. See "
+                "I " + getAction() + " " + approvalIssue.getIssueTypeObject().getName() + " from sub-task "
                         + approvalIssue.getKey() + ".", true);
     }
 

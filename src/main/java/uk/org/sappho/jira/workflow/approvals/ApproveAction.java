@@ -1,5 +1,6 @@
 package uk.org.sappho.jira.workflow.approvals;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -33,13 +34,18 @@ public class ApproveAction extends DecideAction {
                 break;
             }
         if (isApproved) {
+            List<String> workflowNames =
+                    approvalsConfiguration.getPropertyList(project, "auto.transition.workflow." + approvalType);
+            List<String> workflowActions =
+                    approvalsConfiguration.getPropertyList(project, "auto.transition.action." + approvalType);
+            ComponentManager componentManager = ComponentManager.getInstance();
+            String workflowName = componentManager.getWorkflowManager().getWorkflow(parentIssue).getName();
             int transitionActionId = Integer.parseInt(approvalsConfiguration.getProperty(project,
                     "auto.transition.action." + approvalType, "-999"));
             log.warn("Running workflow transition action id " + transitionActionId + " on " + parentIssue.getKey());
             WorkflowTransitionUtil workflowTransitionUtil = JiraUtils.loadComponent(WorkflowTransitionUtilImpl.class);
             workflowTransitionUtil.setIssue(parentIssue);
-            workflowTransitionUtil.setUsername(ComponentManager.getInstance().getJiraAuthenticationContext().getUser()
-                    .getName());
+            workflowTransitionUtil.setUsername(componentManager.getJiraAuthenticationContext().getUser().getName());
             workflowTransitionUtil.setAction(transitionActionId);
             ErrorCollection errors = workflowTransitionUtil.validate();
             if (errors.hasAnyErrors())

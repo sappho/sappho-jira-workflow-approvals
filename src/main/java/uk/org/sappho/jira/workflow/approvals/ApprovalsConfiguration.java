@@ -166,6 +166,15 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         return getProperty(project + "." + key, defaultValue);
     }
 
+    public List<String> getPropertyList(String project, String key) throws WorkflowException {
+
+        try {
+            return getPropertyList(project + "." + key);
+        } catch (Throwable t) {
+            throw new WorkflowException("Unable to get approvals plugin configuration!", t);
+        }
+    }
+
     synchronized public static ApprovalsConfiguration getInstance() throws WorkflowException {
 
         if (approvalsConfiguration == null)

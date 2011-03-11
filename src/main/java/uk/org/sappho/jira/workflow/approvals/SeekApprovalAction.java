@@ -65,23 +65,23 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
 
         // Find out what approvals have already been sought
-        Map<String, String> alreadySought = new HashMap<String, String>();
+        Map<String, String> existingSubtaskIssueTypes = new HashMap<String, String>();
         for (MutableIssue subTask : issueToBeApproved.getSubTaskObjects()) {
             String approvalIssueType = subTask.getIssueTypeObject().getName();
-            if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
-                alreadySought.put(approvalIssueType, approvalIssueType);
+            existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
         }
 
-        boolean noApprovals = true;
-        Map<String, String> approvals = approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
+        Map<String, String> approvalsAndApprovers =
+                approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
         Iterable<IssueType> allIssueTypes = componentManager.getConstantsManager().getAllIssueTypeObjects();
-        for (String approvalIssueType : approvals.keySet())
+        boolean noApprovals = true;
+        for (String approvalIssueType : approvalsAndApprovers.keySet())
             if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
                 for (IssueType potentialIssueType : allIssueTypes)
-                    if (alreadySought.get(approvalIssueType) == null
+                    if (existingSubtaskIssueTypes.get(approvalIssueType) == null
                             && potentialIssueType.getName().equals(approvalIssueType)) {
-                        String subTaskSummary = approvalIssueType + " : " + summary;
-                        String assignee = approvals.get(approvalIssueType);
+                        String subTaskSummary = approvalIssueType + " / " + summary;
+                        String assignee = approvalsAndApprovers.get(approvalIssueType);
                         if (assignee == null)
                             throw new WorkflowException("There is no configured assignee for approval type "
                                     + approvalIssueType + " - check wiki page!");
@@ -101,7 +101,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
                                     issueToBeApproved.getGenericValue(),
                                     createdIssue, user);
                             issueToBeApproved.store();
-                            alreadySought.put(approvalIssueType, approvalIssueType);
+                            existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
                         } catch (Exception e) {
                             throw new WorkflowException("Unable to create approval sub-tasks!", e);
                         }

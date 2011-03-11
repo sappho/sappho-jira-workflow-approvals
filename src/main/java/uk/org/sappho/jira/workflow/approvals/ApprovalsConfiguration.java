@@ -45,12 +45,12 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         }
     }
 
-    public class WikiPageConfiguration {
+    public class WikiPageApprovalsConfiguration {
 
         private final Map<String, List<String>> requiredApprovals = new HashMap<String, List<String>>();
         private final Map<String, String> approvers = new HashMap<String, String>();
 
-        public WikiPageConfiguration(String project) {
+        public WikiPageApprovalsConfiguration(String project) {
 
             String wikiSpace = getProperty(project, "wiki.approvals.config.space", undefined);
             String wikiPage = getProperty(project, "wiki.approvals.config.page", undefined);
@@ -76,7 +76,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                     if (matcher.matches()) {
                         String firstColumn = matcher.group(1);
                         String restOfLine = matcher.group(2);
-                        if (isIssueType(project, firstColumn, allApprovalsTypeRegexKeySuffix)) {
+                        if (isIssueType(project, allApprovalsTypeRegexKeySuffix, firstColumn)) {
                             String approval = firstColumn;
                             matcher = tableRegex.matcher(restOfLine);
                             if (matcher.matches()) {
@@ -95,7 +95,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                                     matcher = tableRegex.matcher(restOfLine);
                                     if (matcher.matches()) {
                                         String approval = matcher.group(1);
-                                        if (isIssueType(project, approval, allApprovalsTypeRegexKeySuffix))
+                                        if (isIssueType(project, allApprovalsTypeRegexKeySuffix, approval))
                                             approvalsList.add(approval);
                                     } else
                                         break;
@@ -130,18 +130,20 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type) {
 
         Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
-        WikiPageConfiguration configuration = new WikiPageConfiguration(project);
+        WikiPageApprovalsConfiguration configuration = new WikiPageApprovalsConfiguration(project);
         List<String> requiredApprovals = configuration.getRequiredApprovals(service, type);
         if (requiredApprovals != null)
             for (String requiredApproval : requiredApprovals) {
-                approvalsAndApprovers.put(requiredApproval, configuration.getApprover(requiredApproval));
+                String approver = configuration.getApprover(requiredApproval);
+                approvalsAndApprovers.put(requiredApproval, approver);
+                log.warn("Required approval: " + requiredApproval + " by " + approver);
             }
         return approvalsAndApprovers;
     }
 
     synchronized public String getApprover(String project, String requiredApproval) {
 
-        return new WikiPageConfiguration(project).getApprover(requiredApproval);
+        return new WikiPageApprovalsConfiguration(project).getApprover(requiredApproval);
     }
 
     public boolean isIssueType(String project, String key, String issueType) {

@@ -4,11 +4,13 @@ import java.util.Map;
 
 import com.atlassian.core.util.map.EasyMap;
 import com.atlassian.jira.plugin.workflow.AbstractWorkflowPluginFactory;
+import com.atlassian.jira.plugin.workflow.WorkflowPluginConditionFactory;
 import com.atlassian.jira.plugin.workflow.WorkflowPluginFunctionFactory;
 import com.opensymphony.workflow.loader.AbstractDescriptor;
 import com.opensymphony.workflow.loader.FunctionDescriptor;
 
-public class ApprovalTypeFactory extends AbstractWorkflowPluginFactory implements WorkflowPluginFunctionFactory {
+public class ApprovalTypeFactory extends AbstractWorkflowPluginFactory
+        implements WorkflowPluginFunctionFactory, WorkflowPluginConditionFactory {
 
     public static final String approvalTypeKey = "approvalType";
 

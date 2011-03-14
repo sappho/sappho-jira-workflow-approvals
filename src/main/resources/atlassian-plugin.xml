@@ -52,11 +52,20 @@
 	</workflow-function>
 
 	<workflow-condition
-		key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Approval Condition"
-		class="uk.org.sappho.jira.workflow.approvals.ApprovalConditionFactory">
-		<description>Sappho Approval Condition</description>
+		key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Check Approval Issue Live"
+		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
+		<description>Check that the parent issue is currently open to being approved</description>
 		<condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition
 		</condition-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ApprovalCondition.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-condition>
 
 	<workflow-function

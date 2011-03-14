@@ -14,20 +14,32 @@ abstract public class DecideAction implements FunctionProvider {
     public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");
-        bumpWorkflow(approvalIssue, params);
+        String approvalType = bumpWorkflow(approvalIssue, params);
         ComponentManager componentManager = ComponentManager.getInstance();
-        componentManager.getCommentManager().create(
-                approvalIssue.getParentObject(),
-                componentManager.getJiraAuthenticationContext().getUser().getName(),
-                "I " + getAction() + " " + approvalIssue.getIssueTypeObject().getName() + " from sub-task "
-                        + approvalIssue.getKey() + ".", true);
+        componentManager
+                .getCommentManager()
+                .create(
+                        approvalIssue.getParentObject(),
+                        componentManager.getJiraAuthenticationContext().getUser().getName(),
+                        "I "
+                                + getAction()
+                                + " "
+                                + approvalIssue.getIssueTypeObject().getName()
+                                + " from sub-task "
+                                + approvalIssue.getKey()
+                                + "."
+                                + (approvalType != null ? "\nAll "
+                                        + approvalType
+                                        + " approvals now granted so this issue has been auto-transitioned to the next workflow step"
+                                        : ""), true);
     }
 
     @SuppressWarnings("unchecked")
-    protected void bumpWorkflow(@SuppressWarnings("unused") MutableIssue approvalIssue,
+    protected String bumpWorkflow(@SuppressWarnings("unused") MutableIssue approvalIssue,
             @SuppressWarnings("unused") Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
+        return null;
     }
 
     abstract protected String getAction();

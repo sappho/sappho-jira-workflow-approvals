@@ -19,7 +19,7 @@ public class ApproveAction extends DecideAction {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
+    protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
 
         ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
         MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
@@ -72,17 +72,9 @@ public class ApproveAction extends DecideAction {
             if (errors.hasAnyErrors())
                 throw new WorkflowException("Unable to progress transition " + parentIssue.getKey() + "! Caused by "
                         + errors);
-            componentManager
-                    .getCommentManager()
-                    .create(
-                            parentIssue,
-                            componentManager.getJiraAuthenticationContext().getUser().getName(),
-                            "All "
-                                    + approvalType
-                                    + " approvals granted so this issue has been auto-transitioned to the next workflow status",
-                            true);
-
-        }
+            return approvalType;
+        } else
+            return null;
     }
 
     @Override

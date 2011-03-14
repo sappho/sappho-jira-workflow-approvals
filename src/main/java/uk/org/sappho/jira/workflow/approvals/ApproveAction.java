@@ -49,9 +49,11 @@ public class ApproveAction extends DecideAction {
             if (errors.hasAnyErrors())
                 throw new WorkflowException("Unable to progress transition " + parentIssue.getKey() + "! Caused by "
                         + errors);
-            return approvalType;
+            return "\nAll " + approvalType
+                    + " approvals now granted so this issue has been auto-transitioned to "
+                    + parentIssue.getStatusObject().getName() + ".";
         } else
-            return null;
+            return "";
     }
 
     @Override

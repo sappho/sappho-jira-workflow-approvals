@@ -14,24 +14,15 @@ abstract public class DecideAction implements FunctionProvider {
     public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");
-        String approvalType = bumpWorkflow(approvalIssue, params);
+        String message = bumpWorkflow(approvalIssue, params);
         ComponentManager componentManager = ComponentManager.getInstance();
         componentManager
                 .getCommentManager()
                 .create(
                         approvalIssue.getParentObject(),
                         componentManager.getJiraAuthenticationContext().getUser().getName(),
-                        "I "
-                                + getAction()
-                                + " "
-                                + approvalIssue.getIssueTypeObject().getName()
-                                + " from sub-task "
-                                + approvalIssue.getKey()
-                                + "."
-                                + (approvalType != null ? "\nAll "
-                                        + approvalType
-                                        + " approvals now granted so this issue has been auto-transitioned to the next workflow step"
-                                        : ""), true);
+                        "I " + getAction() + " " + approvalIssue.getIssueTypeObject().getName()
+                                + " from sub-task " + approvalIssue.getKey() + "." + message, true);
     }
 
     @SuppressWarnings("unchecked")
@@ -39,7 +30,7 @@ abstract public class DecideAction implements FunctionProvider {
             @SuppressWarnings("unused") Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
-        return null;
+        return "";
     }
 
     abstract protected String getAction();

@@ -1,9 +1,11 @@
 package uk.org.sappho.jira.workflow.approvals;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.Condition;
@@ -21,10 +23,14 @@ public class ApprovalCondition implements Condition {
         String project = parentIssue.getProjectObject().getKey();
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
         WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration(project, approvalType, parentIssue);
+        List<String> approvers = ApprovalsConfiguration.getInstance().getAllApprovers(project,
+                approvalIssue.getIssueTypeObject().getName());
         String status = parentIssue.getStatusObject().getName();
-        boolean passes = workflowConfiguration.getRequiredStatus().equals(status);
-        log.warn("Status of " + parentIssue.getKey() + " is " + status + " - approval buttons will be "
-                + (passes ? "visible" : "hidden"));
+        String username = ComponentManager.getInstance().getJiraAuthenticationContext().getUser().getName();
+        log.warn("Status of " + parentIssue.getKey() + " is " + status);
+        log.warn("Logged in user is " + username);
+        boolean passes = workflowConfiguration.getRequiredStatus().equals(status) && approvers.contains(username);
+        log.warn("Approval buttons will be " + (passes ? "visible" : "hidden"));
         return passes;
     }
 }

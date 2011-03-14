@@ -26,19 +26,29 @@
 	</workflow-function>
 
 	<workflow-function
-		key="${project.groupId}.${project.artifactId}.DeclineAction" name="Decline Action"
+		key="${project.groupId}.${project.artifactId}.DeclineAction" name="Decline Parent Issue"
 		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-		<description>Sappho Decline Action</description>
+		<description>Decline approval on parent issue</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.DeclineAction
 		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-DeclineAction.vm" />
 	</workflow-function>
 
 	<workflow-function
-		key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Reconsider Action"
+		key="${project.groupId}.${project.artifactId}.ReconsiderAction" name="Reconsider Parent Issue"
 		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
-		<description>Sappho Reconsider Action</description>
+		<description>Reconsider approval on parent issue</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.ReconsiderAction
 		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ReconsiderAction.vm" />
 	</workflow-function>
 
 	<workflow-condition

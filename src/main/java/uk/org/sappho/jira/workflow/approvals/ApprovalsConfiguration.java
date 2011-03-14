@@ -48,7 +48,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     public class WikiPageApprovalsConfiguration {
 
         private final Map<String, List<String>> requiredApprovals = new HashMap<String, List<String>>();
-        private final Map<String, String> approvers = new HashMap<String, String>();
+        private final Map<String, List<String>> approvers = new HashMap<String, List<String>>();
 
         public WikiPageApprovalsConfiguration(String project) {
 
@@ -78,11 +78,18 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                         String restOfLine = matcher.group(2);
                         if (isIssueType(project, allApprovalsIssueTypes, firstColumn)) {
                             String approval = firstColumn;
-                            matcher = tableRegex.matcher(restOfLine);
-                            if (matcher.matches()) {
-                                String approver = matcher.group(1);
-                                approvers.put(approval, approver);
-                                log.info("Approver for " + approval + " is " + approver);
+                            List<String> approversList = new ArrayList<String>();
+                            while (true) {
+                                restOfLine = matcher.group(2);
+                                matcher = tableRegex.matcher(restOfLine);
+                                if (matcher.matches())
+                                    approversList.add(matcher.group(1));
+                                else
+                                    break;
+                                if (approversList.size() > 0) {
+                                    approvers.put(approval, approversList);
+                                    log.info("Primary approver for " + approval + " is " + approversList.get(0));
+                                }
                             }
                         } else {
                             String service = firstColumn;
@@ -116,7 +123,12 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
             return requiredApprovals.get(combinedServiceAndType(service, type));
         }
 
-        public String getApprover(String requiredApproval) {
+        public String getPrimaryApprover(String requiredApproval) {
+
+            return approvers.get(requiredApproval).get(0);
+        }
+
+        public List<String> getAllApprovers(String requiredApproval) {
 
             return approvers.get(requiredApproval);
         }
@@ -134,16 +146,21 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         List<String> requiredApprovals = configuration.getRequiredApprovals(service, type);
         if (requiredApprovals != null)
             for (String requiredApproval : requiredApprovals) {
-                String approver = configuration.getApprover(requiredApproval);
+                String approver = configuration.getPrimaryApprover(requiredApproval);
                 approvalsAndApprovers.put(requiredApproval, approver);
                 log.warn("Required approval: " + requiredApproval + " by " + approver);
             }
         return approvalsAndApprovers;
     }
 
-    synchronized public String getApprover(String project, String requiredApproval) {
+    synchronized public String getPrimaryApprover(String project, String requiredApproval) {
 
-        return new WikiPageApprovalsConfiguration(project).getApprover(requiredApproval);
+        return new WikiPageApprovalsConfiguration(project).getPrimaryApprover(requiredApproval);
+    }
+
+    synchronized public List<String> getAllApprovers(String project, String requiredApproval) {
+
+        return new WikiPageApprovalsConfiguration(project).getAllApprovers(requiredApproval);
     }
 
     public boolean isIssueType(String project, String key, String issueType) {

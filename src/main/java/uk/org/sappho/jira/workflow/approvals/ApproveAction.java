@@ -51,7 +51,7 @@ public class ApproveAction extends DecideAction {
                         + errors);
             return "\nAll " + approvalType
                     + " approvals now granted so this issue has been auto-transitioned to "
-                    + parentIssue.getStatusObject().getName() + ".";
+                    + parentIssue.getStatusObject().getName().toLowerCase() + ".";
         } else
             return "";
     }

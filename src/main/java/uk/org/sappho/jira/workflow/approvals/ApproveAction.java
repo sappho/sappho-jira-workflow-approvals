@@ -35,13 +35,30 @@ public class ApproveAction extends DecideAction {
             }
         if (isApproved) {
             List<String> workflowNames =
-                    approvalsConfiguration.getPropertyList(project, "auto.transition.workflow." + approvalType);
+                    approvalsConfiguration.getPropertyList(project, "auto.transition.workflow.name." + approvalType);
             List<String> workflowActions =
-                    approvalsConfiguration.getPropertyList(project, "auto.transition.action." + approvalType);
+                    approvalsConfiguration.getPropertyList(project, "auto.transition.workflow.action.id."
+                            + approvalType);
             ComponentManager componentManager = ComponentManager.getInstance();
-            String workflowName = componentManager.getWorkflowManager().getWorkflow(parentIssue).getName();
-            int transitionActionId = Integer.parseInt(approvalsConfiguration.getProperty(project,
-                    "auto.transition.action." + approvalType, "-999"));
+            String issueWorkflowName = componentManager.getWorkflowManager().getWorkflow(parentIssue).getName();
+            log.warn("Found workflow " + issueWorkflowName + " on " + parentIssue.getKey());
+            int transitionActionId = 0;
+            boolean workflowFound = false;
+            for (String workflowName : workflowNames) {
+                if (workflowName.equals(issueWorkflowName)) {
+                    try {
+                        transitionActionId = Integer.parseInt(workflowActions.get(transitionActionId));
+                    } catch (Throwable t) {
+                        break;
+                    }
+                    workflowFound = true;
+                    break;
+                }
+                transitionActionId++;
+            }
+            if (!workflowFound)
+                throw new WorkflowException("Auto-transition for workflow " + issueWorkflowName + " and approval type "
+                        + approvalType + " is not correctly configured");
             log.warn("Running workflow transition action id " + transitionActionId + " on " + parentIssue.getKey());
             WorkflowTransitionUtil workflowTransitionUtil = JiraUtils.loadComponent(WorkflowTransitionUtilImpl.class);
             workflowTransitionUtil.setIssue(parentIssue);

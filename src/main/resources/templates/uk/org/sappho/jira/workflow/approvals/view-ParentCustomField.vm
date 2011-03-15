@@ -1,0 +1,6 @@
+#if ($issue.isSubTask())
+#set($parentIssue = $issue.getParentObject())
+#set($parentIssueKey = $parentIssue.getKey())
+#set($parentIssueSummary = $parentIssue.getSummary())
+<a href="/browse/${parentIssueKey}" title="${parentIssueSummary}">${parentIssueKey}</a>
+#end

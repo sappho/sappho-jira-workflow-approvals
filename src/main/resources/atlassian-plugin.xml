@@ -54,7 +54,8 @@
 	<workflow-condition
 		key="${project.groupId}.${project.artifactId}.ApprovalCondition" name="Check Approval Issue Live"
 		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
-		<description>Check that the parent issue is currently open to being approved</description>
+		<description>Check that the parent issue is currently open to being
+			approved</description>
 		<condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalCondition
 		</condition-class>
 		<orderable>true</orderable>
@@ -71,7 +72,7 @@
 	<workflow-function
 		key="${project.groupId}.${project.artifactId}.SeekApprovalAction"
 		name="Seek Approval" class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
-		<description>Seek approval by creating approval sub-tasks
+		<description>Seek approval by creating approval subtasks
 		</description>
 		<function-class>uk.org.sappho.jira.workflow.approvals.SeekApprovalAction
 		</function-class>
@@ -85,5 +86,15 @@
 		<resource type="velocity" name="edit-parameters"
 			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-function>
+
+	<customfield-type
+		key="${project.groupId}.${project.artifactId}.ParentCustomField"
+		name="Parent Link" class="uk.org.sappho.jira.workflow.approvals.ParentCustomField">
+		<description>Links to a subtask's parent issue</description>
+		<resource type="velocity" name="column-view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ParentCustomField.vm" />
+		<resource type="velocity" name="xml"
+			location="templates/plugins/fields/xml/xml-basictext.vm" />
+	</customfield-type>
 
 </atlassian-plugin>

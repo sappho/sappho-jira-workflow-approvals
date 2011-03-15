@@ -24,10 +24,6 @@ public class ApprovalsIssueListener implements IssueEventListener {
             // track issue creates to auto-assign them
             issueCreated(event);
             break;
-        case 6:
-            // TODO: Remove this when it's really known to be not needed!
-            //issueCommented(event);
-            break;
         }
     }
 

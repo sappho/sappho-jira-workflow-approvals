@@ -20,9 +20,6 @@ public class ParentCustomField extends CalculatedCFType {
 
     public Object getValueFromIssue(CustomField field, Issue issue) {
 
-        String parentKey = "";
-        if (issue.isSubTask())
-            parentKey = issue.getParentObject().getKey();
-        return parentKey;
+        return issue.isSubTask() ? issue.getParentObject().getKey() : issue.getKey();
     }
 }

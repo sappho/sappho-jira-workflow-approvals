@@ -1,6 +1,8 @@
 #if ($issue.isSubTask())
-#set($parentIssue = $issue.getParentObject())
-#set($parentIssueKey = $parentIssue.getKey())
-#set($parentIssueSummary = $parentIssue.getSummary())
-<a href="/browse/${parentIssueKey}" title="${parentIssueSummary}">${parentIssueKey}</a>
+#set($inFocusIssue = $issue.getParentObject())
+#else
+#set($inFocusIssue = $issue)
 #end
+#set($inFocusIssueKey = $inFocusIssue.getKey())
+#set($inFocusIssueSummary = $inFocusIssue.getSummary())
+<a href="/browse/${inFocusIssueKey}" title="${inFocusIssueSummary}">${inFocusIssueKey}</a>

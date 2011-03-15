@@ -48,10 +48,13 @@ public class ApprovalsIssueListener implements IssueEventListener {
                     isChanged = true;
                     log.warn("Assigned issue " + issue.getKey() + " to " + user.getFullName());
                 }
-                String summary = issue.getSummary();
                 if (approvalsConfiguration.isIssueType(
                         project, ApprovalsConfiguration.allApprovalsIssueTypes, issueType)) {
                     // Prefix issue type to summary if this is an approval issue
+                    String summary = issue.getSummary();
+                    String parentSummary = issue.getParentObject().getSummary();
+                    if (!summary.equals(parentSummary))
+                        summary = parentSummary + " / " + (summary.length() > 1 ? summary : "additional");
                     summary = issueType + " / " + summary;
                     issue.setSummary(summary);
                     isChanged = true;

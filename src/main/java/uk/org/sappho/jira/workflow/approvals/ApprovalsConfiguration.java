@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.MutableIssue;
 import com.opensymphony.workflow.WorkflowException;
 
 import uk.org.sappho.configuration.SimpleConfiguration;
@@ -171,6 +172,11 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     public boolean isRegexMatch(String project, String key, String value) {
 
         return Pattern.compile(getProperty(project, key, undefined)).matcher(value).matches();
+    }
+
+    public boolean isNotApproved(String project, MutableIssue subtask) {
+
+        return !approvalsConfiguration.isRegexMatch(project, "statuses.approved", subtask.getStatusObject().getName());
     }
 
     public boolean isConfiguredProject(String project) {

@@ -87,6 +87,23 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-function>
 
+	<workflow-condition
+		key="${project.groupId}.${project.artifactId}.IssueApprovedCondition" name="Check Issue Approved"
+		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
+		<description>Check that the issue has been approved</description>
+		<condition-class>uk.org.sappho.jira.workflow.approvals.IssueApprovedCondition
+		</condition-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-IssueApprovedCondition.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
+	</workflow-condition>
+
 	<customfield-type
 		key="${project.groupId}.${project.artifactId}.ParentCustomField"
 		name="Parent Link" class="uk.org.sappho.jira.workflow.approvals.ParentCustomField">

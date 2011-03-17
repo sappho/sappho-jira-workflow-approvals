@@ -27,8 +27,7 @@ public class ApproveAction extends DecideAction {
         boolean isApproved = true;
         for (MutableIssue subTask : parentIssue.getSubTaskObjects())
             if (approvalsConfiguration.isIssueType(project, approvalType, subTask.getIssueTypeObject().getName())
-                    && !approvalsConfiguration.isRegexMatch(project, "statuses.approved", subTask.getStatusObject()
-                            .getName())) {
+                    && approvalsConfiguration.isNotApproved(project, subTask)) {
                 isApproved = false;
                 break;
             }

@@ -1,0 +1,9 @@
+<tr bgcolor="#ffffff">
+    <td align="right" valign="top" bgcolor="#fffff0">
+        <span class="label">Status key:</span>
+    </td>
+    <td bgcolor="#ffffff" nowrap>
+        <input type="text" name="statusKey" value="$statusKey"/>
+        <br><font size="1">Enter the status key (e.g. &quot;working&quot;)</font>
+    </td>
+</tr>

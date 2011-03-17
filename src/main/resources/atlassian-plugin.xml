@@ -104,6 +104,23 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-condition>
 
+	<workflow-condition
+		key="${project.groupId}.${project.artifactId}.ParentStatusCondition" name="Check Parent Status"
+		class="uk.org.sappho.jira.workflow.approvals.StatusKeyFactory">
+		<description>Check that the parent issue is at a particular status</description>
+		<condition-class>uk.org.sappho.jira.workflow.approvals.ParentStatusCondition
+		</condition-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ParentStatusCondition.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-StatusKey.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-StatusKey.vm" />
+	</workflow-condition>
+
 	<customfield-type
 		key="${project.groupId}.${project.artifactId}.ParentCustomField"
 		name="Parent Link" class="uk.org.sappho.jira.workflow.approvals.ParentCustomField">

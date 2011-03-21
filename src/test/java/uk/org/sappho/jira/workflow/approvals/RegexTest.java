@@ -31,7 +31,7 @@ public class RegexTest {
 
         ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
         Map<String, String> approvals = approvalsConfiguration.getApprovalsAndApprovers("CRM", "Application",
-                "theFrame");
+                "theFrame", "");
         for (String approval : approvals.keySet())
             log.warn(approval + " -> " + approvals.get(approval));
     }

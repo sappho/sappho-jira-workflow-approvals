@@ -97,21 +97,27 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
                             matcher = tableRegex.matcher(restOfLine);
                             if (matcher.matches()) {
                                 String type = matcher.group(1);
-                                List<String> approvalsList = new ArrayList<String>();
-                                while (true) {
-                                    restOfLine = matcher.group(2);
-                                    matcher = tableRegex.matcher(restOfLine);
-                                    if (matcher.matches()) {
-                                        String approval = matcher.group(1);
-                                        if (isIssueType(project, allApprovalsIssueTypes, approval))
-                                            approvalsList.add(approval);
-                                    } else
-                                        break;
+                                restOfLine = matcher.group(2);
+                                matcher = tableRegex.matcher(restOfLine);
+                                if (matcher.matches()) {
+                                    String region = matcher.group(1);
+                                    List<String> approvalsList = new ArrayList<String>();
+                                    while (true) {
+                                        restOfLine = matcher.group(2);
+                                        matcher = tableRegex.matcher(restOfLine);
+                                        if (matcher.matches()) {
+                                            String approval = matcher.group(1);
+                                            if (isIssueType(project, allApprovalsIssueTypes, approval))
+                                                approvalsList.add(approval);
+                                        } else
+                                            break;
+                                    }
+                                    String tag = combinedServiceTypeAndRegion(service, type, region);
+                                    requiredApprovals.put(tag, approvalsList);
+                                    log.info("Approval of " + tag);
+                                    for (String approval : approvalsList)
+                                        log.info(" requires " + approval);
                                 }
-                                requiredApprovals.put(combinedServiceAndType(service, type), approvalsList);
-                                log.info("Approval of " + service + " - " + type);
-                                for (String approval : approvalsList)
-                                    log.info(" requires " + approval);
                             }
                         }
                     }
@@ -119,9 +125,9 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
             }
         }
 
-        public List<String> getRequiredApprovals(String service, String type) {
+        public List<String> getRequiredApprovals(String service, String type, String region) {
 
-            return requiredApprovals.get(combinedServiceAndType(service, type));
+            return requiredApprovals.get(combinedServiceTypeAndRegion(service, type, region));
         }
 
         public String getPrimaryApprover(String requiredApproval) {
@@ -134,17 +140,22 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
             return approvers.get(requiredApproval);
         }
 
-        private String combinedServiceAndType(String service, String type) {
+        private String combinedServiceTypeAndRegion(String service, String type, String region) {
 
-            return service + " - " + type;
+            return service + " - " + type + " - " + region;
         }
     }
 
-    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type) {
+    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type,
+            String region) {
 
         Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
         WikiPageApprovalsConfiguration configuration = new WikiPageApprovalsConfiguration(project);
-        List<String> requiredApprovals = configuration.getRequiredApprovals(service, type);
+        // Try to find a config for the specified region first
+        List<String> requiredApprovals = configuration.getRequiredApprovals(service, type, region);
+        // If the region doesn't exist or it's blank then go for a region of "All" which should be defined in all cases
+        if (requiredApprovals == null)
+            requiredApprovals = configuration.getRequiredApprovals(service, type, "All");
         if (requiredApprovals != null)
             for (String requiredApproval : requiredApprovals) {
                 String approver = configuration.getPrimaryApprover(requiredApproval);

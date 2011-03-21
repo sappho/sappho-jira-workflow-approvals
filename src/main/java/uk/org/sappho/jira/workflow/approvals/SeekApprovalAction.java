@@ -30,6 +30,9 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         String project = issueToBeApproved.getProjectObject().getKey();
         String summary = issueToBeApproved.getSummary();
         User user = componentManager.getJiraAuthenticationContext().getUser();
+        String reportingUserRegion = issueToBeApproved.getReporter().getPropertySet().getString("region");
+        if (reportingUserRegion == null)
+            reportingUserRegion = "";
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
         log.warn(user.getFullName() + " has sought " + approvalType + " approval on " + issueToBeApproved.getKey());
 
@@ -73,7 +76,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
 
         // Create the approvals sub-tasks
         Map<String, String> approvalsAndApprovers =
-                approvalsConfiguration.getApprovalsAndApprovers(project, service, type);
+                approvalsConfiguration.getApprovalsAndApprovers(project, service, type, reportingUserRegion);
         Iterable<IssueType> allIssueTypes = componentManager.getConstantsManager().getAllIssueTypeObjects();
         boolean noApprovals = true;
         for (String approvalIssueType : approvalsAndApprovers.keySet())

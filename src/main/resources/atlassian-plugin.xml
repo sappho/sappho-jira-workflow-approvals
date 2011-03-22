@@ -131,4 +131,17 @@
 			location="templates/plugins/fields/xml/xml-basictext.vm" />
 	</customfield-type>
 
+	<workflow-condition
+		key="${project.groupId}.${project.artifactId}.ServiceAndTypeValidCondition" name="Check Service and Type Valid"
+		class="uk.org.sappho.jira.workflow.approvals.ConditionNoInputPluginFactory">
+		<description>Check that the service / type combination is valid</description>
+		<condition-class>uk.org.sappho.jira.workflow.approvals.ServiceAndTypeValidCondition
+		</condition-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ServiceAndTypeValidCondition.vm" />
+	</workflow-condition>
+
 </atlassian-plugin>

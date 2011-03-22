@@ -1,10 +1,8 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -21,8 +19,7 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
     private final String wikiURL;
     private final String wikiUsername;
     private final String wikiPassword;
-    private final Map<String, String> lastConfigPages = new HashMap<String, String>();
-    protected static final Pattern tableRegex = Pattern.compile("^ *\\| +(.+?) +(\\|.*)$");
+    private final Map<String, String> cachedWikiPages = new HashMap<String, String>();
     private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
     public static final String allApprovalsIssueTypes = "all";
@@ -44,135 +41,6 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         } catch (Throwable t) {
             throw new WorkflowException("Unable to get approvals plugin configuration!", t);
         }
-    }
-
-    public class WikiPageApprovalsConfiguration {
-
-        private final Map<String, List<String>> requiredApprovals = new HashMap<String, List<String>>();
-        private final Map<String, List<String>> approvers = new HashMap<String, List<String>>();
-
-        public WikiPageApprovalsConfiguration(String project) {
-
-            String wikiSpace = getProperty(project, "wiki.approvals.config.space", undefined);
-            String wikiPage = getProperty(project, "wiki.approvals.config.page", undefined);
-            String description = wikiSpace + ":" + wikiPage + " from " + wikiURL;
-            log.warn("Reading " + description);
-            String configPage = lastConfigPages.get(project);
-            try {
-                ConfluenceSoapService confluenceSoapService = new ConfluenceSoapService(wikiURL, wikiUsername,
-                        wikiPassword);
-                configPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(),
-                        wikiSpace, wikiPage).getContent();
-                lastConfigPages.put(project, configPage);
-            } catch (Throwable t) {
-                log.error("Ubable to load " + description, t);
-                if (configPage != null)
-                    log.warn("Using previously loaded configuration");
-            }
-            if (configPage == null)
-                log.error("No configuration available!");
-            else {
-                for (String configLine : configPage.split("\n")) {
-                    Matcher matcher = tableRegex.matcher(configLine);
-                    if (matcher.matches()) {
-                        String firstColumn = matcher.group(1);
-                        String restOfLine = matcher.group(2);
-                        if (isIssueType(project, allApprovalsIssueTypes, firstColumn)) {
-                            String approval = firstColumn;
-                            List<String> approversList = new ArrayList<String>();
-                            while (true) {
-                                restOfLine = matcher.group(2);
-                                matcher = tableRegex.matcher(restOfLine);
-                                if (matcher.matches())
-                                    approversList.add(matcher.group(1));
-                                else
-                                    break;
-                                if (approversList.size() > 0) {
-                                    approvers.put(approval, approversList);
-                                    log.info("Primary approver for " + approval + " is " + approversList.get(0));
-                                }
-                            }
-                        } else {
-                            String service = firstColumn;
-                            matcher = tableRegex.matcher(restOfLine);
-                            if (matcher.matches()) {
-                                String type = matcher.group(1);
-                                restOfLine = matcher.group(2);
-                                matcher = tableRegex.matcher(restOfLine);
-                                if (matcher.matches()) {
-                                    String region = matcher.group(1);
-                                    List<String> approvalsList = new ArrayList<String>();
-                                    while (true) {
-                                        restOfLine = matcher.group(2);
-                                        matcher = tableRegex.matcher(restOfLine);
-                                        if (matcher.matches()) {
-                                            String approval = matcher.group(1);
-                                            if (isIssueType(project, allApprovalsIssueTypes, approval))
-                                                approvalsList.add(approval);
-                                        } else
-                                            break;
-                                    }
-                                    String tag = combinedServiceTypeAndRegion(service, type, region);
-                                    requiredApprovals.put(tag, approvalsList);
-                                    log.info("Approval of " + tag);
-                                    for (String approval : approvalsList)
-                                        log.info(" requires " + approval);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public List<String> getRequiredApprovals(String service, String type, String region) {
-
-            return requiredApprovals.get(combinedServiceTypeAndRegion(service, type, region));
-        }
-
-        public String getPrimaryApprover(String requiredApproval) {
-
-            return approvers.get(requiredApproval).get(0);
-        }
-
-        public List<String> getAllApprovers(String requiredApproval) {
-
-            return approvers.get(requiredApproval);
-        }
-
-        private String combinedServiceTypeAndRegion(String service, String type, String region) {
-
-            return service + " - " + type + " - " + region;
-        }
-    }
-
-    synchronized public Map<String, String> getApprovalsAndApprovers(String project, String service, String type,
-            String region) {
-
-        Map<String, String> approvalsAndApprovers = new HashMap<String, String>();
-        WikiPageApprovalsConfiguration configuration = new WikiPageApprovalsConfiguration(project);
-        // Try to find a config for the specified region first
-        List<String> requiredApprovals = configuration.getRequiredApprovals(service, type, region);
-        // If the region doesn't exist or it's blank then go for a region of "All" which should be defined in all cases
-        if (requiredApprovals == null)
-            requiredApprovals = configuration.getRequiredApprovals(service, type, "All");
-        if (requiredApprovals != null)
-            for (String requiredApproval : requiredApprovals) {
-                String approver = configuration.getPrimaryApprover(requiredApproval);
-                approvalsAndApprovers.put(requiredApproval, approver);
-                log.warn("Required approval: " + requiredApproval + " by " + approver);
-            }
-        return approvalsAndApprovers;
-    }
-
-    synchronized public String getPrimaryApprover(String project, String requiredApproval) {
-
-        return new WikiPageApprovalsConfiguration(project).getPrimaryApprover(requiredApproval);
-    }
-
-    synchronized public List<String> getAllApprovers(String project, String requiredApproval) {
-
-        return new WikiPageApprovalsConfiguration(project).getAllApprovers(requiredApproval);
     }
 
     public boolean isIssueType(String project, String key, String issueType) {
@@ -207,6 +75,34 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         } catch (Throwable t) {
             throw new WorkflowException("Unable to get approvals plugin configuration!", t);
         }
+    }
+
+    synchronized public String getWikiPage(String project, String wikiKey) {
+
+        String wikiSpaceName = getProperty(project, wikiKey + ".space", ApprovalsConfiguration.undefined);
+        String wikiPageName = getProperty(project, wikiKey + ".page", ApprovalsConfiguration.undefined);
+        String description = wikiSpaceName + ":" + wikiPageName + " from " + wikiURL;
+        log.warn("Loading " + description);
+        // Is the last page read cached? Use the cached value as a default
+        String wikiPage = cachedWikiPages.get(description);
+        try {
+            // Attempt an update from the wiki
+            ConfluenceSoapService confluenceSoapService =
+                    new ConfluenceSoapService(wikiURL, wikiUsername, wikiPassword);
+            wikiPage = confluenceSoapService.getService().getPage(confluenceSoapService.getToken(), wikiSpaceName,
+                    wikiPageName).getContent();
+            // Cache successfully read page
+            cachedWikiPages.put(description, wikiPage);
+        } catch (Throwable t) {
+            log.error("Ubable to load " + description, t);
+            if (wikiPage != null)
+                log.warn("Using previously loaded page content");
+        }
+        if (wikiPage == null) {
+            wikiPage = "";
+            log.warn("No page content available!");
+        }
+        return wikiPage;
     }
 
     synchronized public static ApprovalsConfiguration getInstance() throws WorkflowException {

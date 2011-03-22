@@ -32,14 +32,12 @@ public class WorkflowConfiguration {
         boolean workflowFound = false;
         for (String workflowName : workflowNames) {
             if (workflowName.equals(issueWorkflowName)) {
+                requiredStatus = workflowStatuses.get(index);
+                if (requiredStatus == null)
+                    throw new WorkflowException("Required status for workflow " + issueWorkflowName
+                            + " and approval type " + approvalType + " is missing!");
                 try {
                     transitionActionId = Integer.parseInt(workflowActions.get(index));
-                } catch (Throwable t) {
-                    throw new WorkflowException("Auto-transition action ID for workflow " + issueWorkflowName
-                            + " and approval type " + approvalType + " is incorrect!", t);
-                }
-                try {
-                    requiredStatus = workflowStatuses.get(index);
                 } catch (Throwable t) {
                     throw new WorkflowException("Auto-transition action ID for workflow " + issueWorkflowName
                             + " and approval type " + approvalType + " is incorrect!", t);
@@ -52,6 +50,7 @@ public class WorkflowConfiguration {
         if (!workflowFound)
             throw new WorkflowException("Configuration for workflow " + issueWorkflowName + " and approval type "
                     + approvalType + " is incorrect!");
+        log.warn("Status/ActionId: " + requiredStatus + "/" + transitionActionId);
     }
 
     public int getTransitionActionId() {

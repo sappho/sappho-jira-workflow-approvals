@@ -144,4 +144,14 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-ServiceAndTypeValidCondition.vm" />
 	</workflow-condition>
 
+	<customfield-type
+		key="${project.groupId}.${project.artifactId}.ParentStartDateCustomField"
+		name="Parent Start Date" class="uk.org.sappho.jira.workflow.approvals.ParentStartDateCustomField">
+		<description>Gets a work start date from a parent issue</description>
+		<resource type="velocity" name="column-view"
+			location="templates/plugins/fields/view/view-datetime.vm" />
+		<resource type="velocity" name="xml"
+			location="templates/plugins/fields/xml/xml-date.vm" />
+	</customfield-type>
+
 </atlassian-plugin>

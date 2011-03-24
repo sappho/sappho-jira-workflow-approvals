@@ -154,4 +154,17 @@
 			location="templates/plugins/fields/xml/xml-date.vm" />
 	</customfield-type>
 
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.SetSummaryFromParentAction" name="Set Summary From Parent"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Set summary to be a combination of issue type / parent summary / issue summary</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.SetSummaryFromParentAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-SetSummaryFromParentAction.vm" />
+	</workflow-function>
+
 </atlassian-plugin>

@@ -52,18 +52,12 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         for (String approvalIssueType : approvalsKey.getRequiredApprovalTypes())
             if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
                 if (existingSubtaskIssueTypes.get(approvalIssueType) == null) {
-                    String assignee = approvalsKey.getPrimaryApprover(approvalIssueType);
-                    if (assignee == null)
-                        throw new WorkflowException("There is no configured assignee for approval type "
-                                        + approvalIssueType + " - check wiki page!");
-                    log.warn("Creating " + approvalIssueType + " sub-task " + summary + " assigned to "
-                                    + assignee);
+                    log.warn("Creating " + approvalIssueType + " sub-task");
                     MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
                     approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
                     approvalTask.setIssueTypeId(typeIds.get(approvalIssueType));
                     approvalTask.setReporter(user);
-                    approvalTask.setAssignee(componentManager.getUserUtil().getUser(assignee));
-                    approvalTask.setSummary(summary);
+                    approvalTask.setSummary("auto");
                     approvalTask.setParentId(issueToBeApproved.getParentId());
                     try {
                         GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,

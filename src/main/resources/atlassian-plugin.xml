@@ -167,4 +167,17 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-SetSummaryFromParentAction.vm" />
 	</workflow-function>
 
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.AssignToApproverAction" name="Assign To Approver"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Assign the issue to the lead approver</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.AssignToApproverAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-AssignToApproverAction.vm" />
+	</workflow-function>
+
 </atlassian-plugin>

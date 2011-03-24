@@ -11,7 +11,5 @@ public interface ApprovalsKey {
 
     public List<String> getRequiredApprovalTypes();
 
-    public String getPrimaryApprover(String requiredApprovalType);
-
     public List<String> getAllApprovers(String requiredApprovalType);
 }

@@ -16,9 +16,7 @@ public class SetSummaryFromParentAction extends AbstractJiraFunctionProvider {
         String issueType = issue.getIssueTypeObject().getName();
         String summary = issue.getSummary().trim();
         String parentSummary = issue.getParentObject().getSummary().trim();
-        if (!summary.equals(parentSummary))
-            summary = parentSummary + " / " + (summary.length() > 1 ? summary : "additional");
-        issue.setSummary(issueType + " / " + summary);
+        issue.setSummary(issueType + " / " + parentSummary + (summary.length() > 1 ? summary : "additional"));
         issue.store();
     }
 }

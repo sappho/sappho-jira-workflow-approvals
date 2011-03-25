@@ -1,6 +1,7 @@
 package uk.org.sappho.jira.workflow.approvals;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -52,12 +53,16 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         for (String approvalIssueType : approvalsKey.getRequiredApprovalTypes())
             if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
                 if (existingSubtaskIssueTypes.get(approvalIssueType) == null) {
+                    List<String> approvers = approvalsKey.getAllowedApprovers(approvalIssueType);
+                    if (approvers == null)
+                        throw new WorkflowException(
+                                "Unable to create approval subtask because there are no configured approvers!");
                     log.warn("Creating " + approvalIssueType + " sub-task");
                     MutableIssue approvalTask = componentManager.getIssueFactory().getIssue();
                     approvalTask.setProjectId(issueToBeApproved.getProjectObject().getId());
                     approvalTask.setIssueTypeId(typeIds.get(approvalIssueType));
                     approvalTask.setReporter(user);
-                    approvalTask.setSummary("auto");
+                    approvalTask.setSummary(approvalIssueType + " / " + summary);
                     approvalTask.setParentId(issueToBeApproved.getParentId());
                     try {
                         GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
@@ -69,7 +74,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
                         issueToBeApproved.store();
                         existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
                     } catch (Exception e) {
-                        throw new WorkflowException("Unable to create approval sub-tasks!", e);
+                        throw new WorkflowException("Unable to create approval subtasks!", e);
                     }
                 }
     }

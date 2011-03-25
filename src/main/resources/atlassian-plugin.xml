@@ -180,4 +180,17 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-AssignToApproverAction.vm" />
 	</workflow-function>
 
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.AssignToRaiserAction" name="Assign To Raiser"
+		class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Assign the issue to its raiser</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.AssignToRaiserAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-AssignToRaiserAction.vm" />
+	</workflow-function>
+
 </atlassian-plugin>

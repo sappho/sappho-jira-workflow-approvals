@@ -140,7 +140,7 @@ public class ServiceTypeRegion implements ApprovalsKey {
         return approvers.get(requiredApprovalType).get(0);
     }
 
-    public List<String> getAllApprovers(String requiredApprovalType) {
+    public List<String> getAllowedApprovers(String requiredApprovalType) {
 
         return approvers.get(requiredApprovalType);
     }

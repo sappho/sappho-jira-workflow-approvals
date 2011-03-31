@@ -132,16 +132,16 @@
 	</customfield-type>
 
 	<workflow-condition
-		key="${project.groupId}.${project.artifactId}.ServiceAndTypeValidCondition" name="Check Service and Type Valid"
+		key="${project.groupId}.${project.artifactId}.ApprovalsConfigurationValidCondition" name="Check Approvals Configuration Valid"
 		class="uk.org.sappho.jira.workflow.approvals.ConditionNoInputPluginFactory">
-		<description>Check that the service / type combination is valid</description>
-		<condition-class>uk.org.sappho.jira.workflow.approvals.ServiceAndTypeValidCondition
+		<description>Check that the approvals configuration is valid for this issue</description>
+		<condition-class>uk.org.sappho.jira.workflow.approvals.ApprovalsConfigurationValidCondition
 		</condition-class>
 		<orderable>true</orderable>
 		<unique>true</unique>
 		<deletable>true</deletable>
 		<resource type="velocity" name="view"
-			location="templates/uk/org/sappho/jira/workflow/approvals/view-ServiceAndTypeValidCondition.vm" />
+			location="templates/uk/org/sappho/jira/workflow/approvals/ApprovalsConfigurationValidCondition.vm" />
 	</workflow-condition>
 
 	<customfield-type

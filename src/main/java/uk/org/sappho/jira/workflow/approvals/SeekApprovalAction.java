@@ -26,9 +26,9 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
         MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
 
         // Find out what approvals are needed
-        // TODO: Work out a way of making this bit pluggable - it's way too specific to the CRM project
-        ApprovalsKey approvalsKey = new ServiceTypeRegion();
-        approvalsKey.init(issueToBeApproved);
+        PluginConfiguration pluginConfiguration = PluginConfiguration.getInstance();
+        ApprovalsConfigurationPlugin approvalsConfigurationPlugin =
+                pluginConfiguration.getApprovalsConfigurationPlugin(issueToBeApproved);
 
         String project = issueToBeApproved.getProjectObject().getKey();
         String summary = issueToBeApproved.getSummary();
@@ -49,11 +49,10 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
             typeIds.put(issueType.getName(), issueType.getId());
 
         // Create the approvals sub-tasks
-        ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
-        for (String approvalIssueType : approvalsKey.getRequiredApprovalTypes())
-            if (approvalsConfiguration.isIssueType(project, approvalType, approvalIssueType))
+        for (String approvalIssueType : approvalsConfigurationPlugin.getRequiredApprovalTypes())
+            if (pluginConfiguration.isIssueType(project, approvalType, approvalIssueType))
                 if (existingSubtaskIssueTypes.get(approvalIssueType) == null) {
-                    List<String> approvers = approvalsKey.getAllowedApprovers(approvalIssueType);
+                    List<String> approvers = approvalsConfigurationPlugin.getAllowedApprovers(approvalIssueType);
                     if (approvers == null)
                         throw new WorkflowException(
                                 "Unable to create approval subtask because there are no configured approvers!");

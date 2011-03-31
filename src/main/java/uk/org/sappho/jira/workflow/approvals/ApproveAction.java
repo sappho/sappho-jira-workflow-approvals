@@ -20,7 +20,7 @@ public class ApproveAction extends DecideAction {
     @Override
     protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
 
-        ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
+        PluginConfiguration approvalsConfiguration = PluginConfiguration.getInstance();
         MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
         String project = parentIssue.getProjectObject().getKey();
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);

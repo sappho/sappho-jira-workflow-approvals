@@ -19,7 +19,7 @@ public class ParentStatusCondition implements Condition {
             Issue parentIssue = issue.getParentObject();
             String project = issue.getProjectObject().getKey();
             String statusKey = (String) params.get(StatusKeyFactory.statusKey);
-            ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
+            PluginConfiguration approvalsConfiguration = PluginConfiguration.getInstance();
             passes = approvalsConfiguration.isRegexMatch(project, "statuses." + statusKey, parentIssue
                     .getStatusObject().getName());
         }

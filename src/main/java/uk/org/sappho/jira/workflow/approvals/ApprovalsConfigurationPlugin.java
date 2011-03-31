@@ -5,7 +5,7 @@ import java.util.List;
 import com.atlassian.jira.issue.Issue;
 import com.opensymphony.workflow.WorkflowException;
 
-public interface ApprovalsKey {
+public interface ApprovalsConfigurationPlugin {
 
     public void init(Issue issue) throws WorkflowException;
 

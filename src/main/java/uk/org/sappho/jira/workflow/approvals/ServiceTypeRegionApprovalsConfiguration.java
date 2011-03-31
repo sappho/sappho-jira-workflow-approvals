@@ -15,7 +15,7 @@ import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.opensymphony.workflow.WorkflowException;
 
-public class ServiceTypeRegion implements ApprovalsKey {
+public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigurationPlugin {
 
     private String project = null;
     private String service = null;
@@ -57,7 +57,7 @@ public class ServiceTypeRegion implements ApprovalsKey {
         project = issue.getProjectObject().getKey();
 
         // Get approvals configuration page from wiki
-        ApprovalsConfiguration config = ApprovalsConfiguration.getInstance();
+        PluginConfiguration config = PluginConfiguration.getInstance();
         String configPage = config.getWikiPage(project, "wiki.approvals.config");
 
         // Get all valid issue type names to ensure subtasks can be raised properly
@@ -73,7 +73,7 @@ public class ServiceTypeRegion implements ApprovalsKey {
             Matcher matcher = tableRegex.matcher(configLine);
             if (matcher.matches()) {
                 String firstColumn = matcher.group(1);
-                if (config.isIssueType(project, ApprovalsConfiguration.allApprovalsIssueTypes, firstColumn)) {
+                if (config.isIssueType(project, PluginConfiguration.allApprovalsIssueTypes, firstColumn)) {
                     // Handle personnel list for approval type
                     if (!allIssueTypeNames.contains(firstColumn))
                         throw new WorkflowException("Approval type " + firstColumn + " is not a valid issue type!");
@@ -105,7 +105,7 @@ public class ServiceTypeRegion implements ApprovalsKey {
                                 collecting = matcher.matches();
                                 if (collecting) {
                                     String approval = matcher.group(1);
-                                    if (config.isIssueType(project, ApprovalsConfiguration.allApprovalsIssueTypes,
+                                    if (config.isIssueType(project, PluginConfiguration.allApprovalsIssueTypes,
                                             approval))
                                         approvalsList.add(approval);
                                 }

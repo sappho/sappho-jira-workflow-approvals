@@ -22,10 +22,10 @@ public class ApprovalCondition implements Condition {
         MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
 
         // Find out what approvals are needed
-        // TODO: Work out a way of making this bit pluggable - it's way too specific to the CRM project
-        ApprovalsKey approvalsKey = new ServiceTypeRegion();
-        approvalsKey.init(parentIssue);
-        List<String> approvers = approvalsKey.getAllowedApprovers(approvalIssue.getIssueTypeObject().getName());
+        ApprovalsConfigurationPlugin approvalsConfigurationPlugin =
+                PluginConfiguration.getInstance().getApprovalsConfigurationPlugin(parentIssue);
+        List<String> approvers =
+                approvalsConfigurationPlugin.getAllowedApprovers(approvalIssue.getIssueTypeObject().getName());
 
         String project = parentIssue.getProjectObject().getKey();
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);

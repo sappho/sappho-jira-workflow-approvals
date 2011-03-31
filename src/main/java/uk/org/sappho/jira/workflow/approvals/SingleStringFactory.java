@@ -30,7 +30,7 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
     @Override
     protected void getVelocityParamsForInput(Map velocityParams) {
 
-        velocityParams.put(key, ApprovalsConfiguration.undefined);
+        velocityParams.put(key, PluginConfiguration.undefined);
     }
 
     @SuppressWarnings("unchecked")
@@ -43,7 +43,7 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
     @SuppressWarnings("unchecked")
     public Map getDescriptorParams(Map<String, Object> conditionParams) {
 
-        String param = ApprovalsConfiguration.undefined;
+        String param = PluginConfiguration.undefined;
         if (conditionParams != null && conditionParams.containsKey(key))
             param = extractSingleParam(conditionParams, key);
         return EasyMap.build(key, param);
@@ -53,10 +53,10 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
 
         String value = (String) ((FunctionDescriptor) descriptor).getArgs().get(key);
         if (value == null)
-            value = ApprovalsConfiguration.undefined;
+            value = PluginConfiguration.undefined;
         value = value.trim();
         if (value.length() < 1)
-            value = ApprovalsConfiguration.undefined;
+            value = PluginConfiguration.undefined;
         return value;
     }
 

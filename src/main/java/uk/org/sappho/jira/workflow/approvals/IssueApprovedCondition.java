@@ -16,7 +16,7 @@ public class IssueApprovedCondition implements Condition {
         MutableIssue issue = (MutableIssue) transientVars.get("issue");
         String project = issue.getProjectObject().getKey();
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
-        ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
+        PluginConfiguration approvalsConfiguration = PluginConfiguration.getInstance();
         for (MutableIssue subTask : issue.getSubTaskObjects())
             if (approvalsConfiguration.isIssueType(project, approvalType, subTask.getIssueTypeObject().getName()))
                 if (approvalsConfiguration.isNotApproved(project, subTask)) {

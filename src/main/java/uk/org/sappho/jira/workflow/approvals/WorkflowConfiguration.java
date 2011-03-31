@@ -17,7 +17,7 @@ public class WorkflowConfiguration {
     public WorkflowConfiguration(String project, String approvalType, MutableIssue parentIssue)
             throws WorkflowException {
 
-        ApprovalsConfiguration approvalsConfiguration = ApprovalsConfiguration.getInstance();
+        PluginConfiguration approvalsConfiguration = PluginConfiguration.getInstance();
         List<String> workflowNames =
                 approvalsConfiguration.getPropertyList(project, "parent.issue.workflow.name." + approvalType);
         List<String> workflowActions =

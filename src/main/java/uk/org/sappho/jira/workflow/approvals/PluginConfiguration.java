@@ -7,26 +7,27 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.opensymphony.workflow.WorkflowException;
 
 import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
 
-public class ApprovalsConfiguration extends SimpleConfiguration {
+public class PluginConfiguration extends SimpleConfiguration {
 
     private final Pattern projectsRegex;
     private final String wikiURL;
     private final String wikiUsername;
     private final String wikiPassword;
     private final Map<String, String> cachedWikiPages = new HashMap<String, String>();
-    private static final Logger log = Logger.getLogger(ApprovalsConfiguration.class);
+    private static final Logger log = Logger.getLogger(PluginConfiguration.class);
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
     public static final String allApprovalsIssueTypes = "all";
     public static final String undefined = "undefined";
-    private static ApprovalsConfiguration approvalsConfiguration = null;
+    private static PluginConfiguration approvalsConfiguration = null;
 
-    private ApprovalsConfiguration() throws WorkflowException {
+    private PluginConfiguration() throws WorkflowException {
 
         super();
         try {
@@ -73,14 +74,14 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         try {
             return getPropertyList(project + "." + key);
         } catch (Throwable t) {
-            throw new WorkflowException("Unable to get approvals plugin configuration!", t);
+            throw new WorkflowException("Unable to get plugin configuration!", t);
         }
     }
 
-    synchronized public String getWikiPage(String project, String wikiKey) {
+    public String getWikiPage(String project, String wikiKey) {
 
-        String wikiSpaceName = getProperty(project, wikiKey + ".space", ApprovalsConfiguration.undefined);
-        String wikiPageName = getProperty(project, wikiKey + ".page", ApprovalsConfiguration.undefined);
+        String wikiSpaceName = getProperty(project, wikiKey + ".space", PluginConfiguration.undefined);
+        String wikiPageName = getProperty(project, wikiKey + ".page", PluginConfiguration.undefined);
         String description = wikiSpaceName + ":" + wikiPageName + " from " + wikiURL;
         log.warn("Loading " + description);
         // Is the last page read cached? Use the cached value as a default
@@ -105,10 +106,24 @@ public class ApprovalsConfiguration extends SimpleConfiguration {
         return wikiPage;
     }
 
-    synchronized public static ApprovalsConfiguration getInstance() throws WorkflowException {
+    public ApprovalsConfigurationPlugin getApprovalsConfigurationPlugin(Issue issue) throws WorkflowException {
+
+        ApprovalsConfigurationPlugin approvalsConfigurationPlugin;
+        try {
+            Class<?> clazz = Class.forName(getProperty(issue.getProjectObject().getKey(),
+                    "approvals.configuration.plugin.class"));
+            approvalsConfigurationPlugin = (ApprovalsConfigurationPlugin) clazz.newInstance();
+        } catch (Throwable t) {
+            throw new WorkflowException("Unable to get approvals plugin configuration!", t);
+        }
+        approvalsConfigurationPlugin.init(issue);
+        return approvalsConfigurationPlugin;
+    }
+
+    synchronized public static PluginConfiguration getInstance() throws WorkflowException {
 
         if (approvalsConfiguration == null)
-            approvalsConfiguration = new ApprovalsConfiguration();
+            approvalsConfiguration = new PluginConfiguration();
         return approvalsConfiguration;
     }
 }

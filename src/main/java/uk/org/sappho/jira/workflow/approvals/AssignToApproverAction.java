@@ -21,8 +21,8 @@ public class AssignToApproverAction extends AbstractJiraFunctionProvider {
 
         MutableIssue issue = (MutableIssue) transientVars.get("issue");
         String issueType = issue.getIssueTypeObject().getName();
-        ApprovalsKey approvalsKey = new ServiceTypeRegion();
-        approvalsKey.init(issue);
+        ApprovalsConfigurationPlugin approvalsKey =
+                PluginConfiguration.getInstance().getApprovalsConfigurationPlugin(issue);
         List<String> approvers = approvalsKey.getAllowedApprovers(issueType);
         if (approvers == null)
             throw new WorkflowException("There is no configured assignee for approval type "

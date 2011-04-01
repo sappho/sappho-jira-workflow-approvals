@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.customfields.option.Option;
@@ -25,6 +27,7 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
     private final Map<String, List<String>> approvers = new HashMap<String, List<String>>();
     private static final Pattern tableRegex = Pattern.compile("^ *\\| +([^\\|]+?) +(\\|.*)$");
     private final ComponentManager componentManager = ComponentManager.getInstance();
+    private static final Logger log = Logger.getLogger(ServiceTypeRegionApprovalsConfiguration.class);
 
     public void init(Issue issue) throws WorkflowException {
 
@@ -52,6 +55,8 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
             if (region == null || region.length() < 1)
                 region = "All";
         }
+        log.warn("Issue " + issue.getKey() + " has service / type / region of " + service + " / " + type + " / "
+                + region);
 
         // Get this issue's project key
         project = issue.getProjectObject().getKey();

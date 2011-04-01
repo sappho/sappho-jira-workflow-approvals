@@ -111,9 +111,10 @@ public class PluginConfiguration extends SimpleConfiguration {
         ApprovalsConfigurationPlugin approvalsConfigurationPlugin;
         try {
             Class<?> clazz = Class.forName(getProperty(issue.getProjectObject().getKey(),
-                    "approvals.configuration.plugin.class"));
+                    "approvals.configuration.plugin.class", undefined));
             approvalsConfigurationPlugin = (ApprovalsConfigurationPlugin) clazz.newInstance();
         } catch (Throwable t) {
+            log.error("Unable to get approvals plugin configuration!", t);
             throw new WorkflowException("Unable to get approvals plugin configuration!", t);
         }
         approvalsConfigurationPlugin.init(issue);

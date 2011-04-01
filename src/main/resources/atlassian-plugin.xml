@@ -141,7 +141,7 @@
 		<unique>true</unique>
 		<deletable>true</deletable>
 		<resource type="velocity" name="view"
-			location="templates/uk/org/sappho/jira/workflow/approvals/ApprovalsConfigurationValidCondition.vm" />
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-ApprovalsConfigurationValidCondition.vm" />
 	</workflow-condition>
 
 	<customfield-type

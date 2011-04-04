@@ -11,7 +11,7 @@ import com.opensymphony.workflow.WorkflowException;
 public class WorkflowConfiguration {
 
     private int transitionActionId;
-    private String requiredStatus;
+    private String requiredStatus = null;
     private static final Logger log = Logger.getLogger(WorkflowConfiguration.class);
 
     public WorkflowConfiguration(String project, String approvalType, MutableIssue parentIssue)
@@ -29,7 +29,6 @@ public class WorkflowConfiguration {
                 ComponentManager.getInstance().getWorkflowManager().getWorkflow(parentIssue).getName();
         log.warn("Found workflow " + issueWorkflowName + " on " + parentIssue.getKey());
         int index = 0;
-        boolean workflowFound = false;
         for (String workflowName : workflowNames) {
             if (workflowName.equals(issueWorkflowName)) {
                 requiredStatus = workflowStatuses.get(index);
@@ -42,12 +41,11 @@ public class WorkflowConfiguration {
                     throw new WorkflowException("Auto-transition action ID for workflow " + issueWorkflowName
                             + " and approval type " + approvalType + " is incorrect!", t);
                 }
-                workflowFound = true;
                 break;
             }
             index++;
         }
-        if (!workflowFound)
+        if (requiredStatus == null)
             throw new WorkflowException("Configuration for workflow " + issueWorkflowName + " and approval type "
                     + approvalType + " is incorrect!");
         log.warn("Status/ActionId: " + requiredStatus + "/" + transitionActionId);

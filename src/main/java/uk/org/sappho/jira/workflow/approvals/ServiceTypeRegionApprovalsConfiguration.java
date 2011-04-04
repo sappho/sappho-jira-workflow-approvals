@@ -51,7 +51,7 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
             if (service == null || type == null)
                 throw new WorkflowException("Invalid Service/Type field value!");
             // Get region from reporting user to add to key
-            region = issue.getReporter().getPropertySet().getString("region");
+            region = issue.getReporter().getPropertySet().getString("jira.meta.region");
             if (region == null || region.length() < 1)
                 region = "All";
         }

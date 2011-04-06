@@ -12,7 +12,7 @@
 	<artifactId>sappho-jira-workflow-approvals</artifactId>
 	<version>0.1.1-SNAPSHOT</version>
 	<name>Sappho Jira Workflow for Approvals</name>
-	<packaging>jar</packaging>
+	<packaging>atlassian-plugin</packaging>
 
 	<scm>
 		<connection>scm:git:https://github.com/sappho/sappho-jira-workflow-approvals.git</connection>

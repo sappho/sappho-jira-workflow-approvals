@@ -64,6 +64,12 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>com.atlassian.jira</groupId>
+			<artifactId>jira-func-tests</artifactId>
+			<version>${jira.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>uk.org.sappho.confluence4j.soap</groupId>
 			<artifactId>confluence4j-soap</artifactId>
 			<version>3.4.3</version>
@@ -91,7 +97,10 @@
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>maven-jira-plugin</artifactId>
-				<!-- See https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/maven/plugins/maven-jira-plugin/ -->
+				<!--
+					See
+					https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/maven/plugins/maven-jira-plugin/
+				-->
 				<version>3.3</version>
 				<extensions>true</extensions>
 				<configuration>

@@ -48,20 +48,6 @@
 			<artifactId>atlassian-jira</artifactId>
 			<version>${jira.version}</version>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.mail</groupId>
-					<artifactId>mail</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.urlrewrite</groupId>
-					<artifactId>urlrewrite</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>jta</groupId>
-					<artifactId>jta</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>

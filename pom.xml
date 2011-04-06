@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -37,11 +38,15 @@
 		</developer>
 	</developers>
 
+	<properties>
+		<jira.version>4.0.1</jira.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>
 			<artifactId>atlassian-jira</artifactId>
-			<version>4.0.1</version>
+			<version>${jira.version}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -82,6 +87,19 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>maven-jira-plugin</artifactId>
+				<!-- See https://maven.atlassian.com/content/repositories/atlassian-public/com/atlassian/maven/plugins/maven-jira-plugin/ -->
+				<version>3.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<productVersion>${jira.version}</productVersion>
+					<productDataVersion>${jira.version}</productDataVersion>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 </project>

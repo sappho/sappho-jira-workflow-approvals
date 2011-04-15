@@ -19,28 +19,34 @@ import com.opensymphony.workflow.WorkflowException;
 
 public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigurationPlugin {
 
-    private String project = null;
-    private String service = null;
-    private String type = null;
-    private String region = null;
     private List<String> requiredApprovalsTypes = null;
     private final Map<String, List<String>> approvers = new HashMap<String, List<String>>();
+    private static final String regionApprovalTag = "region";
     private static final Pattern tableRegex = Pattern.compile("^ *\\| +([^\\|]+?) +(\\|.*)$");
-    private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(ServiceTypeRegionApprovalsConfiguration.class);
 
     public void init(Issue issue) throws WorkflowException {
 
-        // Check service / type custom field has been configured
+        // Check custom fields have been configured
+        ComponentManager componentManager = ComponentManager.getInstance();
         CustomField serviceTypeField =
                 componentManager.getCustomFieldManager().getCustomFieldObjectByName("Service / Type");
         if (serviceTypeField == null)
             throw new WorkflowException("Service/Type custom field is not configured!");
+        CustomField IssueRegionField =
+                componentManager.getCustomFieldManager().getCustomFieldObjectByName("Region");
+        if (IssueRegionField == null)
+            throw new WorkflowException("Region custom field is not configured!");
 
-        // Get service / type from custom field
+        // Get service / type from custom field only if this is a parent task
+        // determined by checking for presence of a service / type field
+        String service = null;
+        String type = null;
+        String issueRegion = null;
+        String reporterRegion = null;
         Object serviceAndTypeObj = issue.getCustomFieldValue(serviceTypeField);
         if (serviceAndTypeObj != null && serviceAndTypeObj instanceof CustomFieldParams) {
-            // Get service and type values which are the main key
+            // Get service and type values
             CustomFieldParams serviceAndType = (CustomFieldParams) serviceAndTypeObj;
             Object serviceObj = serviceAndType.getFirstValueForNullKey();
             Object typeObj = serviceAndType.getFirstValueForKey("1");
@@ -50,16 +56,21 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
                 type = ((Option) typeObj).getValue();
             if (service == null || type == null)
                 throw new WorkflowException("Invalid Service/Type field value!");
-            // Get region from reporting user to add to key
-            region = issue.getReporter().getPropertySet().getString("jira.meta.region");
-            if (region == null || region.length() < 1)
-                region = "All";
+            // get issue's region value
+            Object issueRegionObj = issue.getCustomFieldValue(IssueRegionField);
+            if (issueRegionObj == null || !(issueRegionObj instanceof String))
+                throw new WorkflowException("Invalid Region field value!");
+            issueRegion = (String) issueRegionObj;
+            // Get region of reporting user from user properties
+            reporterRegion = issue.getReporter().getPropertySet().getString("jira.meta.region");
+            if (reporterRegion == null || reporterRegion.length() < 1)
+                reporterRegion = "All";
+            log.warn("Issue " + issue.getKey() + " has service / type / issueRegion / reporterRegion of " +
+                    service + " / " + type + " / " + issueRegion + "/" + reporterRegion);
         }
-        log.warn("Issue " + issue.getKey() + " has service / type / region of " + service + " / " + type + " / "
-                + region);
 
         // Get this issue's project key
-        project = issue.getProjectObject().getKey();
+        String project = issue.getProjectObject().getKey();
 
         // Get approvals configuration page from wiki
         PluginConfiguration config = PluginConfiguration.getInstance();
@@ -74,6 +85,7 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
 
         // Find corresponding approvals by parsing the wiki page
         Map<String, List<String>> possibleApprovals = new HashMap<String, List<String>>();
+        List<String> regionApprovals = null;
         for (String configLine : configPage.split("\n")) {
             Matcher matcher = tableRegex.matcher(configLine);
             if (matcher.matches()) {
@@ -96,42 +108,55 @@ public class ServiceTypeRegionApprovalsConfiguration implements ApprovalsConfigu
                     if (approversList.size() < 1)
                         throw new WorkflowException("Approval type " + firstColumn + " has no approvers!");
                     approvers.put(firstColumn, approversList);
-                } else if (service != null && firstColumn.equals(service)) {
-                    matcher = tableRegex.matcher(matcher.group(2));
-                    if (matcher.matches() && matcher.group(1).equals(type)) {
-                        // Handle service/type configurations for all region combinations
+                } else if (service != null) {
+                    boolean isRegionApprovalTag = firstColumn.equals(regionApprovalTag);
+                    if (isRegionApprovalTag || firstColumn.equals(service)) {
                         matcher = tableRegex.matcher(matcher.group(2));
-                        if (matcher.matches()) {
-                            String configurationRegion = matcher.group(1);
-                            List<String> approvalsList = new ArrayList<String>();
-                            boolean collecting = true;
-                            while (collecting) {
-                                matcher = tableRegex.matcher(matcher.group(2));
-                                collecting = matcher.matches();
-                                if (collecting) {
-                                    String approval = matcher.group(1);
-                                    if (config.isIssueType(project, PluginConfiguration.allApprovalsIssueTypes,
-                                            approval))
-                                        approvalsList.add(approval);
+                        if (matcher.matches() &&
+                                ((isRegionApprovalTag && matcher.group(1).equals(regionApprovalTag)) ||
+                                        matcher.group(1).equals(type))) {
+                            // Handle service/type configurations for all reporter region combinations
+                            matcher = tableRegex.matcher(matcher.group(2));
+                            if (matcher.matches()) {
+                                String configurationRegion = matcher.group(1);
+                                List<String> approvalsList = new ArrayList<String>();
+                                boolean collecting = true;
+                                while (collecting) {
+                                    matcher = tableRegex.matcher(matcher.group(2));
+                                    collecting = matcher.matches();
+                                    if (collecting) {
+                                        String approval = matcher.group(1);
+                                        if (config.isIssueType(project, PluginConfiguration.allApprovalsIssueTypes,
+                                                approval))
+                                            approvalsList.add(approval);
+                                    }
                                 }
+                                if (approvalsList.size() > 0)
+                                    if (isRegionApprovalTag)
+                                        regionApprovals = configurationRegion.equals(issueRegion) ?
+                                                approvalsList : null;
+                                    else
+                                        possibleApprovals.put(configurationRegion, approvalsList);
                             }
-                            if (approvalsList.size() > 0)
-                                possibleApprovals.put(configurationRegion, approvalsList);
                         }
                     }
                 }
             }
         }
 
-        // Get approvals for specific region, falling back on All if not configured or available
+        // Get approvals for specific reporter region, falling back on All if not configured or available
         // but only do this if the issue has a service and type
         if (service != null) {
-            requiredApprovalsTypes = possibleApprovals.get(region);
+            requiredApprovalsTypes = possibleApprovals.get(reporterRegion);
             if (requiredApprovalsTypes == null)
                 requiredApprovalsTypes = possibleApprovals.get("All");
             if (requiredApprovalsTypes == null)
                 throw new WorkflowException("No approvals have been configured for " + project + "/" + service + "/"
-                        + type + "/" + region + "! Select a valid service/type combination.");
+                        + type + "/" + reporterRegion + "! Select a valid service/type combination.");
+            if (regionApprovals != null) {
+                requiredApprovalsTypes.removeAll(regionApprovals);
+                requiredApprovalsTypes.addAll(regionApprovals);
+            }
         }
     }
 

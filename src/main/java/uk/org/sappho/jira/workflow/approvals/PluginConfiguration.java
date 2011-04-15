@@ -25,7 +25,7 @@ public class PluginConfiguration extends SimpleConfiguration {
     private static final String configurationFilename = "c:/var/jira/approvals/approvals.properties";
     public static final String allApprovalsIssueTypes = "all";
     public static final String undefined = "undefined";
-    private static PluginConfiguration approvalsConfiguration = null;
+    private static PluginConfiguration pluginConfiguration = null;
 
     private PluginConfiguration() throws WorkflowException {
 
@@ -56,7 +56,7 @@ public class PluginConfiguration extends SimpleConfiguration {
 
     public boolean isNotApproved(String project, MutableIssue subtask) {
 
-        return !approvalsConfiguration.isRegexMatch(project, "statuses.approved", subtask.getStatusObject().getName());
+        return !pluginConfiguration.isRegexMatch(project, "statuses.approved", subtask.getStatusObject().getName());
     }
 
     public boolean isConfiguredProject(String project) {
@@ -123,8 +123,8 @@ public class PluginConfiguration extends SimpleConfiguration {
 
     synchronized public static PluginConfiguration getInstance() throws WorkflowException {
 
-        if (approvalsConfiguration == null)
-            approvalsConfiguration = new PluginConfiguration();
-        return approvalsConfiguration;
+        if (pluginConfiguration == null)
+            pluginConfiguration = new PluginConfiguration();
+        return pluginConfiguration;
     }
 }

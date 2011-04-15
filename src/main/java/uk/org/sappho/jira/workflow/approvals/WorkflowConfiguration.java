@@ -17,14 +17,14 @@ public class WorkflowConfiguration {
     public WorkflowConfiguration(String project, String approvalType, MutableIssue parentIssue)
             throws WorkflowException {
 
-        PluginConfiguration approvalsConfiguration = PluginConfiguration.getInstance();
+        PluginConfiguration pluginConfiguration = PluginConfiguration.getInstance();
         List<String> workflowNames =
-                approvalsConfiguration.getPropertyList(project, "parent.issue.workflow.name." + approvalType);
+                pluginConfiguration.getPropertyList(project, "parent.issue.workflow.name." + approvalType);
         List<String> workflowActions =
-                approvalsConfiguration.getPropertyList(project, "parent.issue.workflow.auto.transition.action.id."
+                pluginConfiguration.getPropertyList(project, "parent.issue.workflow.auto.transition.action.id."
                         + approvalType);
         List<String> workflowStatuses =
-                approvalsConfiguration.getPropertyList(project, "parent.issue.workflow.status." + approvalType);
+                pluginConfiguration.getPropertyList(project, "parent.issue.workflow.status." + approvalType);
         String issueWorkflowName =
                 ComponentManager.getInstance().getWorkflowManager().getWorkflow(parentIssue).getName();
         log.warn("Found workflow " + issueWorkflowName + " on " + parentIssue.getKey());

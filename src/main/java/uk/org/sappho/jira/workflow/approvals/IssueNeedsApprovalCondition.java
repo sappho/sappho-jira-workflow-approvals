@@ -1,10 +1,10 @@
 package uk.org.sappho.jira.workflow.approvals;
 
-public class IssueApprovedCondition extends IssueApprovalCondition {
+public class IssueNeedsApprovalCondition extends IssueApprovalCondition {
 
     @Override
     protected boolean isApprovedCondition() {
 
-        return true;
+        return false;
     }
 }

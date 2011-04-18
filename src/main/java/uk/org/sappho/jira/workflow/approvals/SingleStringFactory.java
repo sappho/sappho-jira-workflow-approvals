@@ -7,6 +7,7 @@ import com.atlassian.jira.plugin.workflow.AbstractWorkflowPluginFactory;
 import com.atlassian.jira.plugin.workflow.WorkflowPluginConditionFactory;
 import com.atlassian.jira.plugin.workflow.WorkflowPluginFunctionFactory;
 import com.opensymphony.workflow.loader.AbstractDescriptor;
+import com.opensymphony.workflow.loader.ConditionDescriptor;
 import com.opensymphony.workflow.loader.FunctionDescriptor;
 
 abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
@@ -51,7 +52,11 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
 
     private String getValue(AbstractDescriptor descriptor) {
 
-        String value = (String) ((FunctionDescriptor) descriptor).getArgs().get(key);
+        String value = null;
+        if (descriptor instanceof FunctionDescriptor)
+            value = (String) ((FunctionDescriptor) descriptor).getArgs().get(key);
+        else if (descriptor instanceof ConditionDescriptor)
+            value = (String) ((ConditionDescriptor) descriptor).getArgs().get(key);
         if (value == null)
             value = PluginConfiguration.undefined;
         value = value.trim();

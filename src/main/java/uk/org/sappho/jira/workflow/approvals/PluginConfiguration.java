@@ -27,7 +27,7 @@ public class PluginConfiguration extends SimpleConfiguration {
     public static final String undefined = "undefined";
     private static PluginConfiguration pluginConfiguration = null;
 
-    private PluginConfiguration() throws WorkflowException {
+    public PluginConfiguration(String configurationFilename) throws WorkflowException {
 
         super();
         try {
@@ -124,7 +124,7 @@ public class PluginConfiguration extends SimpleConfiguration {
     synchronized public static PluginConfiguration getInstance() throws WorkflowException {
 
         if (pluginConfiguration == null)
-            pluginConfiguration = new PluginConfiguration();
+            pluginConfiguration = new PluginConfiguration(configurationFilename);
         return pluginConfiguration;
     }
 }

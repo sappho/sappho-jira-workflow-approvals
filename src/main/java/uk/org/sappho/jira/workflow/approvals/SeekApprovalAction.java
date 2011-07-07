@@ -10,6 +10,7 @@ import org.ofbiz.core.entity.GenericValue;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.issuetype.IssueType;
+import com.atlassian.jira.util.ImportUtils;
 import com.atlassian.jira.workflow.function.issue.AbstractJiraFunctionProvider;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.User;
@@ -64,9 +65,11 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
                     approvalTask.setSummary(approvalIssueType + " / " + summary);
                     approvalTask.setParentId(issueToBeApproved.getParentId());
                     try {
+                        ImportUtils.setIndexIssues(true);
                         GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
                                         approvalTask);
                         createdIssue.store();
+                        ImportUtils.setIndexIssues(false);
                         componentManager.getSubTaskManager().createSubTaskIssueLink(
                                         issueToBeApproved.getGenericValue(),
                                         createdIssue, user);

@@ -20,20 +20,26 @@ public class AssignToApproverAction extends AbstractJiraFunctionProvider {
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         MutableIssue issue = (MutableIssue) transientVars.get("issue");
-        String issueType = issue.getIssueTypeObject().getName();
-        ApprovalsConfigurationPlugin approvalsKey =
-                PluginConfiguration.getInstance().getApprovalsConfigurationPlugin(issue);
-        List<String> approvers = approvalsKey.getAllowedApprovers(issueType);
-        if (approvers == null)
-            throw new WorkflowException("There is no configured assignee for approval type "
-                    + issueType + " - check wiki page!");
-        String assigneeName = approvers.get(0);
-        User assignee = ComponentManager.getInstance().getUserUtil().getUser(assigneeName);
-        if (assignee == null)
-            throw new WorkflowException("Configured assignee " + assigneeName + " is invalid!");
-        log.warn("Assigning " + issue.getKey() + " to " + assignee.getFullName()
-                + " because they are the lead approver");
-        issue.setAssignee(assignee);
-        issue.store();
+        User assignee = issue.getAssignee();
+        String assigneeName = null;
+        if (assignee != null)
+            assigneeName = assignee.getName();
+        if (assigneeName == null) {
+            String issueType = issue.getIssueTypeObject().getName();
+            ApprovalsConfigurationPlugin approvalsKey =
+                    PluginConfiguration.getInstance().getApprovalsConfigurationPlugin(issue);
+            List<String> approvers = approvalsKey.getAllowedApprovers(issueType);
+            if (approvers == null)
+                throw new WorkflowException("There is no configured assignee for approval type "
+                        + issueType + " - check wiki page!");
+            assigneeName = approvers.get(0);
+            assignee = ComponentManager.getInstance().getUserUtil().getUser(assigneeName);
+            if (assignee == null)
+                throw new WorkflowException("Configured assignee " + assigneeName + " is invalid!");
+            log.warn("Assigning " + issue.getKey() + " to " + assignee.getFullName()
+                    + " because they are the lead approver");
+            issue.setAssignee(assignee);
+            issue.store();
+        }
     }
 }

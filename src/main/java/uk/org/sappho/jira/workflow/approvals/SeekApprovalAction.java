@@ -69,11 +69,11 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
                         GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
                                         approvalTask);
                         createdIssue.store();
-                        ImportUtils.setIndexIssues(false);
                         componentManager.getSubTaskManager().createSubTaskIssueLink(
                                         issueToBeApproved.getGenericValue(),
                                         createdIssue, user);
                         issueToBeApproved.store();
+                        ImportUtils.setIndexIssues(false);
                         existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
                     } catch (Exception e) {
                         throw new WorkflowException("Unable to create approval subtasks!", e);

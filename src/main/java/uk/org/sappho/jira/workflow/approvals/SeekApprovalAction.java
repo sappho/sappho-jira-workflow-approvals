@@ -21,7 +21,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
     private final ComponentManager componentManager = ComponentManager.getInstance();
     private static final Logger log = Logger.getLogger(SeekApprovalAction.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet propertySet) throws WorkflowException {
 
         MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
@@ -67,11 +67,11 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
                     try {
                         ImportUtils.setIndexIssues(true);
                         GenericValue createdIssue = componentManager.getIssueManager().createIssue(user,
-                                        approvalTask);
+                                approvalTask);
                         createdIssue.store();
                         componentManager.getSubTaskManager().createSubTaskIssueLink(
-                                        issueToBeApproved.getGenericValue(),
-                                        createdIssue, user);
+                                issueToBeApproved.getGenericValue(),
+                                createdIssue, user);
                         issueToBeApproved.store();
                         ImportUtils.setIndexIssues(false);
                         existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);

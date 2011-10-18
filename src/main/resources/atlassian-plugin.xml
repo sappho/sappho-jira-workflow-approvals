@@ -87,6 +87,20 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/edit-ApprovalType.vm" />
 	</workflow-function>
 
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.CleanupApprovalsAction"
+		name="Cleanup Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Clean up left over approvals no longer needed by a rejected or completed task
+		</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.CleanupApprovalsAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-CleanupApprovalsAction.vm" />
+	</workflow-function>
+
 	<workflow-condition
 		key="${project.groupId}.${project.artifactId}.IssueApprovedCondition" name="Check Issue Approved"
 		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
@@ -94,7 +108,7 @@
 		<condition-class>uk.org.sappho.jira.workflow.approvals.IssueApprovedCondition
 		</condition-class>
 		<orderable>true</orderable>
-		<unique>true</unique>
+		<unique>false</unique>
 		<deletable>true</deletable>
 		<resource type="velocity" name="view"
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-IssueApprovedCondition.vm" />

@@ -3,17 +3,17 @@ package uk.org.sappho.jira.workflow.approvals;
 import java.util.Map;
 
 import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
 import com.opensymphony.workflow.WorkflowException;
 
 abstract public class DecideAction implements FunctionProvider {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
-        MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");
+        Issue approvalIssue = (Issue) transientVars.get("issue");
         String message = bumpWorkflow(approvalIssue, params);
         ComponentManager componentManager = ComponentManager.getInstance();
         componentManager
@@ -25,9 +25,8 @@ abstract public class DecideAction implements FunctionProvider {
                                 + "_ using approval subtask " + approvalIssue.getKey() + "." + message, true);
     }
 
-    @SuppressWarnings("unchecked")
-    protected String bumpWorkflow(@SuppressWarnings("unused") MutableIssue approvalIssue,
-            @SuppressWarnings("unused") Map params) throws WorkflowException {
+    @SuppressWarnings("rawtypes")
+    protected String bumpWorkflow(Issue approvalIssue, Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
         return "";

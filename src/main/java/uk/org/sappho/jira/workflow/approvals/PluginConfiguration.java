@@ -7,12 +7,11 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.jira.issue.MutableIssue;
-import com.opensymphony.workflow.WorkflowException;
-
 import uk.org.sappho.configuration.SimpleConfiguration;
 import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
+
+import com.atlassian.jira.issue.Issue;
+import com.opensymphony.workflow.WorkflowException;
 
 public class PluginConfiguration extends SimpleConfiguration {
 
@@ -54,9 +53,9 @@ public class PluginConfiguration extends SimpleConfiguration {
         return Pattern.compile(getProperty(project, key, undefined)).matcher(value).matches();
     }
 
-    public boolean isNotApproved(String project, MutableIssue subtask) {
+    public boolean isNotApproved(String project, Issue subTask) {
 
-        return !pluginConfiguration.isRegexMatch(project, "statuses.approved", subtask.getStatusObject().getName());
+        return !pluginConfiguration.isRegexMatch(project, "statuses.approved", subTask.getStatusObject().getName());
     }
 
     public boolean isConfiguredProject(String project) {

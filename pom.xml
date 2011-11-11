@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>uk.org.sappho.pom</groupId>
 		<artifactId>sappho</artifactId>
-		<version>2</version>
+		<version>3</version>
 	</parent>
 
 	<groupId>uk.org.sappho.jira.workflow.approvals</groupId>
@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.atlassian.jira</groupId>
 			<artifactId>atlassian-jira</artifactId>
-			<version>4.0.1</version>
+			<version>4.2.2-b589</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>

@@ -16,7 +16,7 @@ public class AssignToApproverAction extends AbstractJiraFunctionProvider {
 
     private static final Logger log = Logger.getLogger(AssignToApproverAction.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         MutableIssue issue = (MutableIssue) transientVars.get("issue");

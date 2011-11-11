@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.ImportUtils;
@@ -29,7 +30,7 @@ public class CleanupApprovalsAction extends AbstractJiraFunctionProvider {
         User user = componentManager.getJiraAuthenticationContext().getUser();
         log.warn(user.getFullName() + " has triggered the death of child zombies of " + mainIssue.getKey());
 
-        for (MutableIssue subTask : mainIssue.getSubTaskObjects()) {
+        for (Issue subTask : mainIssue.getSubTaskObjects()) {
             if (subTask.getStatusObject().getName().equals("Approval Sought")) {
                 int transitionActionId = 51;
                 log.warn("Running workflow transition action id " + transitionActionId + " on " + subTask.getKey());
@@ -37,7 +38,7 @@ public class CleanupApprovalsAction extends AbstractJiraFunctionProvider {
                 ImportUtils.setIndexIssues(true);
                 WorkflowTransitionUtil workflowTransitionUtil = JiraUtils
                         .loadComponent(WorkflowTransitionUtilImpl.class);
-                workflowTransitionUtil.setIssue(subTask);
+                workflowTransitionUtil.setIssue((MutableIssue) subTask);
                 workflowTransitionUtil.setUsername(user.getName());
                 workflowTransitionUtil.setAction(transitionActionId);
                 ErrorCollection errors = workflowTransitionUtil.validate();

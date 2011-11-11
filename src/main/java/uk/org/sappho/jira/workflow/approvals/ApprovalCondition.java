@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.Condition;
 import com.opensymphony.workflow.WorkflowException;
@@ -15,11 +15,11 @@ public class ApprovalCondition implements Condition {
 
     protected static final Logger log = Logger.getLogger(ApprovalCondition.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean passesCondition(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
-        MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");
-        MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
+        Issue approvalIssue = (Issue) transientVars.get("issue");
+        Issue parentIssue = approvalIssue.getParentObject();
 
         // Find out what approvals are needed
         ApprovalsConfigurationPlugin approvalsConfigurationPlugin =

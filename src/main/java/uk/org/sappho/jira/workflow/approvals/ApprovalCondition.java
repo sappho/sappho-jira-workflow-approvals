@@ -33,9 +33,11 @@ public class ApprovalCondition implements Condition {
 
         String status = parentIssue.getStatusObject().getName();
         String username = ComponentManager.getInstance().getJiraAuthenticationContext().getUser().getName();
-        log.warn("Status of " + parentIssue.getKey() + " is " + status);
+        String reporter = parentIssue.getReporter().getName();
+        log.warn("Status of " + parentIssue.getKey() + " is " + status + " and reported by " + reporter);
         log.warn("Logged in user is " + username);
-        boolean passes = workflowConfiguration.getRequiredStatus().equals(status) && approvers.contains(username);
+        boolean passes = workflowConfiguration.getRequiredStatus().equals(status) && approvers.contains(username)
+                && !username.equalsIgnoreCase(reporter);
         log.warn("Approval buttons will be " + (passes ? "visible" : "hidden"));
         return passes;
     }

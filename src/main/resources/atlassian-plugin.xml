@@ -101,6 +101,20 @@
 			location="templates/uk/org/sappho/jira/workflow/approvals/view-CleanupApprovalsAction.vm" />
 	</workflow-function>
 
+	<workflow-function
+		key="${project.groupId}.${project.artifactId}.RevertApprovalsAction"
+		name="Revert Approvals" class="com.atlassian.jira.plugin.workflow.WorkflowNoInputPluginFactory">
+		<description>Revert all approvals so that approval will be sought again
+		</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.RevertApprovalsAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>true</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-RevertApprovalsAction.vm" />
+	</workflow-function>
+
 	<workflow-condition
 		key="${project.groupId}.${project.artifactId}.IssueApprovedCondition" name="Check Issue Approved"
 		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">

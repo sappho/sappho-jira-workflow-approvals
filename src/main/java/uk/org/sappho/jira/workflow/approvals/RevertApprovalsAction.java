@@ -10,10 +10,10 @@ import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.User;
 import com.opensymphony.workflow.WorkflowException;
 
-public class CleanupApprovalsAction extends BulkApprovalsAction {
+public class RevertApprovalsAction extends BulkApprovalsAction {
 
     private final ComponentManager componentManager = ComponentManager.getInstance();
-    private static final Logger log = Logger.getLogger(CleanupApprovalsAction.class);
+    private static final Logger log = Logger.getLogger(RevertApprovalsAction.class);
 
     @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet propertySet) throws WorkflowException {
@@ -21,11 +21,14 @@ public class CleanupApprovalsAction extends BulkApprovalsAction {
         MutableIssue mainIssue = (MutableIssue) transientVars.get("issue");
 
         User user = componentManager.getJiraAuthenticationContext().getUser();
-        log.warn(user.getFullName() + " has triggered the death of child zombies of " + mainIssue.getKey());
+        log.warn(user.getFullName() + " has triggered a reconsideration of all approvals of " + mainIssue.getKey());
 
         for (MutableIssue subTask : mainIssue.getSubTaskObjects()) {
-            if (subTask.getStatusObject().getName().equals("Approval Sought")) {
-                transitionIssue(subTask, 51, user.getName());
+            if (subTask.getStatusObject().getName().equals("Approved")) {
+                transitionIssue(subTask, 31, "admin");
+            }
+            if (subTask.getStatusObject().getName().equals("Rejected")) {
+                transitionIssue(subTask, 41, "admin");
             }
         }
     }

@@ -10,7 +10,7 @@
 
 	<groupId>uk.org.sappho.jira.workflow.approvals</groupId>
 	<artifactId>sappho-jira-workflow-approvals</artifactId>
-	<version>0.1.3</version>
+	<version>0.1.4-SNAPSHOT</version>
 	<name>Sappho Jira Workflow for Approvals</name>
 	<packaging>jar</packaging>
 

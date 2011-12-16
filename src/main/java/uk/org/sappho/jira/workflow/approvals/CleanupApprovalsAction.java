@@ -25,7 +25,7 @@ public class CleanupApprovalsAction extends BulkApprovalsAction {
 
         for (MutableIssue subTask : mainIssue.getSubTaskObjects()) {
             if (subTask.getStatusObject().getName().equals("Approval Sought")) {
-                transitionIssue(subTask, 51, user.getName());
+                transitionIssue(subTask, 51, user);
             }
         }
     }

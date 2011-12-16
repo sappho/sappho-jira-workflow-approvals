@@ -25,10 +25,10 @@ public class RevertApprovalsAction extends BulkApprovalsAction {
 
         for (MutableIssue subTask : mainIssue.getSubTaskObjects()) {
             if (subTask.getStatusObject().getName().equals("Approved")) {
-                transitionIssue(subTask, 31, "admin");
+                transitionIssueWithAssignment(subTask, 31, user);
             }
             if (subTask.getStatusObject().getName().equals("Rejected")) {
-                transitionIssue(subTask, 41, "admin");
+                transitionIssueWithAssignment(subTask, 41, user);
             }
         }
     }

@@ -7,12 +7,12 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import uk.org.sappho.configuration.SimpleConfiguration;
+import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
+
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.opensymphony.workflow.WorkflowException;
-
-import uk.org.sappho.configuration.SimpleConfiguration;
-import uk.org.sappho.confluence4j.soap.ConfluenceSoapService;
 
 public class PluginConfiguration extends SimpleConfiguration {
 
@@ -95,7 +95,7 @@ public class PluginConfiguration extends SimpleConfiguration {
             // Cache successfully read page
             cachedWikiPages.put(description, wikiPage);
         } catch (Throwable t) {
-            log.error("Ubable to load " + description, t);
+            log.error("Unable to load " + description, t);
             if (wikiPage != null)
                 log.warn("Using previously loaded page content");
         }

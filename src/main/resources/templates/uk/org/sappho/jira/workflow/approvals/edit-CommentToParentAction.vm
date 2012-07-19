@@ -1,0 +1,9 @@
+<tr bgcolor="#ffffff">
+    <td align="right" valign="top" bgcolor="#fffff0">
+        <span class="label">Comment source field name:</span>
+    </td>
+    <td bgcolor="#ffffff" nowrap>
+        <input type="text" name="commentSourceFieldName" value="$commentSourceFieldName"/>
+        <br><font size="1">Enter the name of the custom field that will supply the comment text</font>
+    </td>
+</tr>

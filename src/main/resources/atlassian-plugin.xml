@@ -9,6 +9,23 @@
 	</plugin-info>
 
 	<workflow-function
+		key="${project.groupId}.${project.artifactId}.CommentToParentAction" name="Comment To Parent"
+		class="uk.org.sappho.jira.workflow.approvals.CommentSourceFieldNameFactory">
+		<description>Add a field value as a comment on the parent issue</description>
+		<function-class>uk.org.sappho.jira.workflow.approvals.CommentToParentAction
+		</function-class>
+		<orderable>true</orderable>
+		<unique>false</unique>
+		<deletable>true</deletable>
+		<resource type="velocity" name="view"
+			location="templates/uk/org/sappho/jira/workflow/approvals/view-CommentToParentAction.vm" />
+		<resource type="velocity" name="input-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-CommentToParentAction.vm" />
+		<resource type="velocity" name="edit-parameters"
+			location="templates/uk/org/sappho/jira/workflow/approvals/edit-CommentToParentAction.vm" />
+	</workflow-function>
+
+	<workflow-function
 		key="${project.groupId}.${project.artifactId}.ApproveAction" name="Approve Parent Issue"
 		class="uk.org.sappho.jira.workflow.approvals.ApprovalTypeFactory">
 		<description>Grant approval on parent issue</description>

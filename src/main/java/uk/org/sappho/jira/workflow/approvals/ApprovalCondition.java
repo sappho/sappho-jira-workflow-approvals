@@ -15,7 +15,7 @@ public class ApprovalCondition implements Condition {
 
     protected static final Logger log = Logger.getLogger(ApprovalCondition.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean passesCondition(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");

@@ -9,7 +9,7 @@ import com.opensymphony.workflow.WorkflowException;
 
 abstract public class IssueApprovalCondition implements Condition {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean passesCondition(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         boolean passes = isApprovedCondition();

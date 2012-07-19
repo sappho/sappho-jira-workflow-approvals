@@ -20,28 +20,28 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
         this.key = key;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void getVelocityParamsForEdit(Map velocityParams, AbstractDescriptor descriptor) {
 
         velocityParams.put(key, getValue(descriptor));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void getVelocityParamsForInput(Map velocityParams) {
 
         velocityParams.put(key, PluginConfiguration.undefined);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void getVelocityParamsForView(Map velocityParams, AbstractDescriptor descriptor) {
 
         velocityParams.put(key, getValue(descriptor));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map getDescriptorParams(Map<String, Object> conditionParams) {
 
         String param = PluginConfiguration.undefined;
@@ -65,7 +65,7 @@ abstract public class SingleStringFactory extends AbstractWorkflowPluginFactory
         return value;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public String getValue(Map params) {
 
         return (String) params.get(key);

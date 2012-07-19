@@ -10,7 +10,7 @@ import com.opensymphony.workflow.WorkflowException;
 
 public class ParentStatusCondition implements Condition {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean passesCondition(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         boolean passes = false;

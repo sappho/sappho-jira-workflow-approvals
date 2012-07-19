@@ -13,7 +13,7 @@ public class ApprovalsConfigurationValidCondition implements Condition {
 
     private static final Logger log = Logger.getLogger(ApprovalsConfigurationValidCondition.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public boolean passesCondition(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         Issue issue = (Issue) transientVars.get("issue");

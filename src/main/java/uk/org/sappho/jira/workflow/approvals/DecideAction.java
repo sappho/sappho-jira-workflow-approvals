@@ -10,7 +10,7 @@ import com.opensymphony.workflow.WorkflowException;
 
 abstract public class DecideAction implements FunctionProvider {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet ps) throws WorkflowException {
 
         MutableIssue approvalIssue = (MutableIssue) transientVars.get("issue");
@@ -25,9 +25,8 @@ abstract public class DecideAction implements FunctionProvider {
                                 + "_ using approval subtask " + approvalIssue.getKey() + "." + message, true);
     }
 
-    @SuppressWarnings("unchecked")
-    protected String bumpWorkflow(@SuppressWarnings("unused") MutableIssue approvalIssue,
-            @SuppressWarnings("unused") Map params) throws WorkflowException {
+    @SuppressWarnings("rawtypes")
+    protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
         return "";

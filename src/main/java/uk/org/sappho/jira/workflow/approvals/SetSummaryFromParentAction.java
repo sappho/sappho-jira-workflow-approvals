@@ -9,7 +9,7 @@ import com.opensymphony.workflow.WorkflowException;
 
 public class SetSummaryFromParentAction extends AbstractJiraFunctionProvider {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         MutableIssue issue = (MutableIssue) transientVars.get("issue");

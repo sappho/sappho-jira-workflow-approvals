@@ -17,7 +17,7 @@ public class ApproveAction extends DecideAction {
 
     private static final Logger log = Logger.getLogger(ApproveAction.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Override
     protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
 

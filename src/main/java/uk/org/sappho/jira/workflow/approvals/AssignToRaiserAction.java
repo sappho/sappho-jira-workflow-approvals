@@ -15,7 +15,7 @@ public class AssignToRaiserAction extends AbstractJiraFunctionProvider {
 
     private static final Logger log = Logger.getLogger(AssignToRaiserAction.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map args, PropertySet ps) throws WorkflowException {
 
         User assignee = ComponentManager.getInstance().getJiraAuthenticationContext().getUser();

@@ -3,6 +3,7 @@ package uk.org.sappho.jira.workflow.approvals;
 import java.util.Map;
 
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.workflow.FunctionProvider;
@@ -26,7 +27,7 @@ abstract public class DecideAction implements FunctionProvider {
     }
 
     @SuppressWarnings("rawtypes")
-    protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
+    protected String bumpWorkflow(Issue approvalIssue, Map params) throws WorkflowException {
 
         // do nothing unless this is an ApproveAction
         return "";

@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.opensymphony.module.propertyset.PropertySet;
 import com.opensymphony.user.User;
 import com.opensymphony.workflow.WorkflowException;
@@ -18,12 +18,12 @@ public class RevertApprovalsAction extends BulkApprovalsAction {
     @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet propertySet) throws WorkflowException {
 
-        MutableIssue mainIssue = (MutableIssue) transientVars.get("issue");
+        Issue mainIssue = (Issue) transientVars.get("issue");
 
         User user = componentManager.getJiraAuthenticationContext().getUser();
         log.warn(user.getFullName() + " has triggered a reconsideration of all approvals of " + mainIssue.getKey());
 
-        for (MutableIssue subTask : mainIssue.getSubTaskObjects()) {
+        for (Issue subTask : mainIssue.getSubTaskObjects()) {
             if (subTask.getStatusObject().getName().equals("Approved")) {
                 transitionIssueWithAssignment(subTask, 31, user);
             }

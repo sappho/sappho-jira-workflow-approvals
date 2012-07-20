@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.issuetype.IssueType;
 import com.atlassian.jira.util.ImportUtils;
@@ -24,7 +25,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
     @SuppressWarnings("rawtypes")
     public void execute(Map transientVars, Map params, PropertySet propertySet) throws WorkflowException {
 
-        MutableIssue issueToBeApproved = (MutableIssue) transientVars.get("issue");
+        Issue issueToBeApproved = (Issue) transientVars.get("issue");
 
         // Find out what approvals are needed
         PluginConfiguration pluginConfiguration = PluginConfiguration.getInstance();
@@ -39,7 +40,7 @@ public class SeekApprovalAction extends AbstractJiraFunctionProvider {
 
         // Find out what approvals have already been sought
         Map<String, String> existingSubtaskIssueTypes = new HashMap<String, String>();
-        for (MutableIssue subTask : issueToBeApproved.getSubTaskObjects()) {
+        for (Issue subTask : issueToBeApproved.getSubTaskObjects()) {
             String approvalIssueType = subTask.getIssueTypeObject().getName();
             existingSubtaskIssueTypes.put(approvalIssueType, approvalIssueType);
         }

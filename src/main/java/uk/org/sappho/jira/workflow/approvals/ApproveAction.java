@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.ComponentManager;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.ImportUtils;
@@ -19,14 +20,14 @@ public class ApproveAction extends DecideAction {
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected String bumpWorkflow(MutableIssue approvalIssue, Map params) throws WorkflowException {
+    protected String bumpWorkflow(Issue approvalIssue, Map params) throws WorkflowException {
 
         PluginConfiguration pluginConfiguration = PluginConfiguration.getInstance();
-        MutableIssue parentIssue = (MutableIssue) approvalIssue.getParentObject();
+        Issue parentIssue = approvalIssue.getParentObject();
         String project = parentIssue.getProjectObject().getKey();
         String approvalType = (String) params.get(ApprovalTypeFactory.approvalTypeKey);
         boolean isApproved = true;
-        for (MutableIssue subTask : parentIssue.getSubTaskObjects())
+        for (Issue subTask : parentIssue.getSubTaskObjects())
             if (pluginConfiguration.isIssueType(project, approvalType, subTask.getIssueTypeObject().getName())
                     && pluginConfiguration.isNotApproved(project, subTask)) {
                 isApproved = false;
@@ -39,7 +40,7 @@ public class ApproveAction extends DecideAction {
             boolean wasIndexing = ImportUtils.isIndexIssues();
             ImportUtils.setIndexIssues(true);
             WorkflowTransitionUtil workflowTransitionUtil = JiraUtils.loadComponent(WorkflowTransitionUtilImpl.class);
-            workflowTransitionUtil.setIssue(parentIssue);
+            workflowTransitionUtil.setIssue((MutableIssue) parentIssue);
             workflowTransitionUtil.setUsername(
                     ComponentManager.getInstance().getJiraAuthenticationContext().getUser().getName());
             workflowTransitionUtil.setAction(transitionActionId);

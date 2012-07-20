@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.atlassian.jira.ComponentManager;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.opensymphony.workflow.WorkflowException;
 
 public class WorkflowConfiguration {
@@ -14,7 +14,7 @@ public class WorkflowConfiguration {
     private String requiredStatus = null;
     private static final Logger log = Logger.getLogger(WorkflowConfiguration.class);
 
-    public WorkflowConfiguration(String project, String approvalType, MutableIssue parentIssue)
+    public WorkflowConfiguration(String project, String approvalType, Issue parentIssue)
             throws WorkflowException {
 
         PluginConfiguration pluginConfiguration = PluginConfiguration.getInstance();

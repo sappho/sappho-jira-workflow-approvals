@@ -2,6 +2,7 @@ package uk.org.sappho.jira.workflow.approvals;
 
 import org.apache.log4j.Logger;
 
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.util.ErrorCollection;
 import com.atlassian.jira.util.ImportUtils;
@@ -16,25 +17,25 @@ public abstract class BulkApprovalsAction extends AbstractJiraFunctionProvider {
 
     private static final Logger log = Logger.getLogger(BulkApprovalsAction.class);
 
-    public void transitionIssue(MutableIssue issue, int transitionActionId, User user) throws WorkflowException {
+    public void transitionIssue(Issue subTask, int transitionActionId, User user) throws WorkflowException {
 
-        log.warn("Running workflow transition action id " + transitionActionId + " on " + issue.getKey());
+        log.warn("Running workflow transition action id " + transitionActionId + " on " + subTask.getKey());
         boolean wasIndexing = ImportUtils.isIndexIssues();
         try {
             ImportUtils.setIndexIssues(true);
             WorkflowTransitionUtil workflowTransitionUtil = JiraUtils
                     .loadComponent(WorkflowTransitionUtilImpl.class);
-            workflowTransitionUtil.setIssue(issue);
+            workflowTransitionUtil.setIssue((MutableIssue) subTask);
             workflowTransitionUtil.setUsername(user.getName());
             workflowTransitionUtil.setAction(transitionActionId);
             ErrorCollection errors = workflowTransitionUtil.validate();
             if (errors.hasAnyErrors())
-                throw new WorkflowException("Unable to validate transition " + issue.getKey()
+                throw new WorkflowException("Unable to validate transition " + subTask.getKey()
                         + "! Caused by "
                         + errors);
             errors = workflowTransitionUtil.progress();
             if (errors.hasAnyErrors())
-                throw new WorkflowException("Unable to progress transition " + issue.getKey()
+                throw new WorkflowException("Unable to progress transition " + subTask.getKey()
                         + "! Caused by "
                         + errors);
         } finally {
@@ -42,14 +43,14 @@ public abstract class BulkApprovalsAction extends AbstractJiraFunctionProvider {
         }
     }
 
-    public void transitionIssueWithAssignment(MutableIssue issue, int transitionActionId, User user)
+    public void transitionIssueWithAssignment(Issue subTask, int transitionActionId, User user)
             throws WorkflowException {
 
-        User assignee = issue.getAssignee();
-        issue.setAssignee(user);
-        issue.store();
-        transitionIssue(issue, transitionActionId, user);
-        issue.setAssignee(assignee);
-        issue.store();
+        User assignee = subTask.getAssignee();
+        ((MutableIssue) subTask).setAssignee(user);
+        subTask.store();
+        transitionIssue(subTask, transitionActionId, user);
+        ((MutableIssue) subTask).setAssignee(assignee);
+        subTask.store();
     }
 }

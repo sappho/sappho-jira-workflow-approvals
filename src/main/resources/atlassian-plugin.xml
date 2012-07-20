@@ -8,6 +8,11 @@
 		<vendor name="Sappho OSS" url="http://www.sappho.org.uk" />
 	</plugin-info>
 
+	<component-import key="eventPublisher" interface="com.atlassian.event.api.EventPublisher"/>
+	<component key="eventListener" class="uk.org.sappho.jira.workflow.approvals.AllEventsListener">
+		<description>Process all Jira events, acting on a subset of them for approvals</description>
+	</component>
+
 	<workflow-function
 		key="${project.groupId}.${project.artifactId}.CommentToParentAction" name="Comment To Parent"
 		class="uk.org.sappho.jira.workflow.approvals.CommentSourceFieldNameFactory">
